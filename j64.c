@@ -104,10 +104,8 @@ void j64_dbg(j64_t j)
 			break;
 		}
 		break;
-	case J64_TAG_PRIM_UINT:
-		fprintf(stderr, "uint: %" PRIu64 " ", j64_get_uint(j));
-		break;
-	case J64_TAG_PRIM_INT:
+	case J64_TAG_PRIM_INT0:
+	case J64_TAG_PRIM_INT1:
 		fprintf(stderr, "int: %" PRId64 " ", j64_get_int(j));
 		break;
 	case J64_TAG_PRIM_FLOAT:

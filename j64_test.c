@@ -1,31 +1,55 @@
 #include <stdio.h>
+#include <stdint.h>
 
 #include "j64.h"
 
-void print_header(const char *s)
+int is_null(void)
 {
-	fprintf(stderr, "---------------- %s ----------------\n\n", s);
+	return j64_is_null(j64_null());
 }
+
+int is_false(void)
+{
+	return j64_is_false(j64_false());
+}
+
+struct test_info {
+	const char *name;
+	const char *descr;
+	int (*fn)(void);
+};
+
+#define TEST(fn, descr) { #fn, descr, fn }
+
+int run_test(struct test_info *i)
+{
+	int res= i->fn();
+	fprintf(stderr, "%s: %s\n", i->name, res ? "ok" : "FAIL");
+	return res;
+}
+
+struct test_info tests[] = {
+	TEST(is_null,	"checks that a created null literal is null"),
+	TEST(is_false,	"checks that a created false literal is false")
+};
+
+#define NTESTS (sizeof(tests) / sizeof(tests[0]))
 
 int main(void)
 {
-	print_header("LITERALS");
-	j64_dbg(j64_null());
-	j64_dbg(j64_false());
-	j64_dbg(j64_true());
-	j64_dbg(j64_empty_str());
-	j64_dbg(j64_empty_arr());
-	j64_dbg(j64_empty_obj());
+	int nsuccess = 0, nfail = 0;
+	for (size_t i = 0; i < NTESTS; i++) {
+		int res = run_test(&tests[i]);
+		if (res)
+			nsuccess++;
+		else
+			nfail++;
+	}
 
-	print_header("INTEGERS");
-	j64_dbg(j64_uint(0x100));
-	j64_dbg(j64_int(0x100));
-
-	print_header("STRINGS");
-	j64_dbg(j64_str(""));
-	j64_dbg(j64_str("1"));
-	j64_dbg(j64_str("1234567"));
-	j64_dbg(j64_str("12345678"));
+	fprintf(stderr,
+	    "Success: %d\n"
+	    "Fail:    %d\n",
+	    nsuccess, nfail);
 
 	return 0;
 }
