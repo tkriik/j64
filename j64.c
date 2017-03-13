@@ -38,13 +38,51 @@ j64_t j64_str(const char *s)
 
 		struct j64_bstr_hdr *h = j.p;
 		h->len = len;
-		memcpy(J64_BSTR_HDR_BUF(h), s, len);
+		memcpy(&h->buf, s, len);
 		J64_SET_PRIM_TAG(j, J64_TAG_PRIM_BSTR);
 	}
 
 	return j;
 }
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+size_t j64_get_str(j64_t j, char *dst, size_t dst_size)
+{
+	if (dst_size == 0)
+		return 0;
+
+	size_t dst_len = dst_size - 1;
+
+	const j64_byte_t *src;
+	size_t src_len;
+	switch (J64_GET_PRIM_TAG(j)) {
+	case J64_TAG_PRIM_LIT:
+		switch (J64_GET_SUBTAG_LIT(j)) {
+		case J64_SUBTAG_LIT_ESTR:
+			*dst = '\0';
+			return 0;
+		default:
+			return 0;
+		}
+	case J64_TAG_PRIM_ISTR:
+		src = _j64_get_istr_buf(j);
+		src_len = j64_get_istr_len(j);
+		break;
+	case J64_TAG_PRIM_BSTR:
+		src = J64_GET_BSTR_BUF(j);
+		src_len = J64_GET_BSTR_LEN(j);
+		break;
+	default:
+		return 0;
+	}
+
+	size_t min_len = MIN(src_len, dst_len);
+	memcpy(dst, src, min_len);
+	dst[min_len] = '\0';
+
+	return min_len;
+}
 
 void j64_dbg(j64_t j)
 {
@@ -93,7 +131,7 @@ void j64_dbg(j64_t j)
 		break;
 	case J64_TAG_PRIM_BSTR:
 		hdr = J64_GET_PTR(j);
-		fprintf(stderr, "bstr: %p, %s ", (void *)hdr, J64_BSTR_HDR_BUF(hdr));
+		fprintf(stderr, "bstr (%llu): %p, %s ", hdr->len, (void *)hdr, &hdr->buf);
 		break;
 	case J64_TAG_PRIM_ARR:
 		fprintf(stderr, "arr: %p", J64_GET_PTR(j));

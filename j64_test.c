@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "j64.h"
 
@@ -132,6 +133,63 @@ int int_neq_with_max_over(void)
 	return j64_get_int(j64_int(J64_INT_MAX + 1)) != J64_INT_MAX + 1;
 }
 
+int str_len_eq_0(void)
+{
+	return j64_get_str_len(j64_str("")) == 0;
+}
+
+int str_len_eq_1(void)
+{
+	return j64_get_str_len(j64_str("1")) == 1;
+}
+
+int str_len_eq_7(void)
+{
+	return j64_get_str_len(j64_str("1234567")) == 7;
+}
+
+int str_len_eq_8(void)
+{
+	return j64_get_str_len(j64_str("12345678")) == 8;
+}
+
+int str_len_eq_16(void)
+{
+	return j64_get_str_len(j64_str("YELLOW SUBMARINE")) == 16;
+}
+
+#define STR_EQ_TEST_TEMPLATE(_s, _n)				\
+	const char *s = _s;					\
+	j64_t j = j64_str(_s);					\
+	char b[_n + 1] = _s;					\
+	size_t len = j64_get_str(j, b, sizeof(b));		\
+	return len == _n && strcmp(s, b) == 0;
+
+int str_eq_with_len_0(void)
+{
+	STR_EQ_TEST_TEMPLATE("", 0);
+}
+
+int str_eq_with_len_1(void)
+{
+	STR_EQ_TEST_TEMPLATE("1", 1);
+}
+
+int str_eq_with_len_7(void)
+{
+	STR_EQ_TEST_TEMPLATE("1234567", 7);
+}
+
+int str_eq_with_len_8(void)
+{
+	STR_EQ_TEST_TEMPLATE("12345678", 8);
+}
+
+int str_eq_with_len_16(void)
+{
+	STR_EQ_TEST_TEMPLATE("YELLOW SUBMARINE", 16);
+}
+
 struct test_info {
 	const char *name;
 	const char *descr;
@@ -177,7 +235,17 @@ struct test_info tests[] = {
 	TEST(int_eq_with_min,		"tests signed integer equality with minimum value"),
 	TEST(int_eq_with_max,		"tests signed integer equality with maximum value"),
 	TEST(int_neq_with_min_under,	"tests signed integer unequality with value under minimum"),
-	TEST(int_neq_with_max_over,	"tests signed integer unequality with value over maximum")
+	TEST(int_neq_with_max_over,	"tests signed integer unequality with value over maximum"),
+	TEST(str_len_eq_0,		"tests string length with empty string"),
+	TEST(str_len_eq_1,		"tests string length with one character"),
+	TEST(str_len_eq_7,		"tests string length with 7 characters"),
+	TEST(str_len_eq_8,		"tests string length with 8 characters"),
+	TEST(str_len_eq_16,		"tests string length with 16 characters"),
+	TEST(str_eq_with_len_0,		"tests string equality with empty string"),
+	TEST(str_eq_with_len_1,		"tests string equality with one character"),
+	TEST(str_eq_with_len_7,		"tests string equality with 7 characters"),
+	TEST(str_eq_with_len_8,		"tests string equality with 8 characters"),
+	TEST(str_eq_with_len_16,	"tests string equality with 16 characters")
 };
 
 #define NTESTS (sizeof(tests) / sizeof(tests[0]))

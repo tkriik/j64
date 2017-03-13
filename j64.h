@@ -137,8 +137,10 @@ struct j64_bstr_hdr {
 
 #define J64_BSTR_HDR(j)		((struct j64_bstr_hdr *)J64_GET_PTR(j))
 #define J64_BSTR_HDR_SIZEOF	(sizeof(struct j64_bstr_hdr) - 1)
-#define J64_BSTR_HDR_BUF(h)	((j64_byte_t *)&((h)->buf))
-
+#define J64_GET_BSTR_LEN(j)						\
+    (((struct j64_bstr_hdr *)J64_GET_PTR(j))->len)
+#define J64_GET_BSTR_BUF(j)						\
+    ((j64_byte_t *)&((struct j64_bstr_hdr *)J64_GET_PTR(j))->buf)
 
 /* Constructor routines. */
 #define J64_INIT(t, x)	((j64_t){ .t = (x) })
@@ -190,12 +192,23 @@ j64_t	j64_obj(j64_t *, size_t);
 
 #define j64_istr_get_at(j, i)		((j).b[7 - (i)])
 #define j64_istr_set_at(j, i, x)	((j).b[7 - (i)] = (x))
-#define j64_bstr_get_at(j, i)		(J64_BSTR_HDR_BUF(j)[i])
-#define j64_bstr_set_at(j, i, x)	((J64_BSTR_HDR_BUF(j)[i]) = (x))
+#define j64_bstr_get_at(j, i)		(J64_GET_BSTR_BUF(j)[i])
+#define j64_bstr_set_at(j, i, x)	((J64_GET_BSTR_BUF(j)[i]) = (x))
 #define j64_str_get_at(j, i) \
     (j64_is_bstr(j) ? j64_bstr_get_at(j, i) : j64_istr_get_at(j, i))
 #define j64_str_set_at(j, i, x) \
     (j64_is_bstr(j) ? j64_bstr_set_at(j, i, x) : j64_istr_set_at(j, i, x))
+
+#define _j64_get_istr_buf(j)	(&(j).b[1])
+#define _j64_get_str_buf(j) \
+    (j64_is_bstr(j) ? J64_GET_BSTR_BUF(j) : (j64_is_istr(j) ? &(j).b[1]) : NULL)
+
+size_t j64_get_str(j64_t, char *, size_t);
+
+#define j64_get_istr_len(j)	J64_GET_SUBTAG_STR_LEN(j)
+#define j64_get_bstr_len(j)	J64_GET_BSTR_LEN(j)
+#define j64_get_str_len(j) \
+    (j64_is_bstr(j) ? J64_GET_BSTR_LEN(j) : (j64_is_istr(j) ? j64_get_istr_len(j) : 0))
 
 /* Debug */
 void	j64_dbg(j64_t);
