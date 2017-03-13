@@ -118,14 +118,14 @@ void j64_dbg(j64_t j)
 		fputc(' ', stderr);
 		break;
 	case J64_TAG_PRIM_BSTR:
-		hdr = j64_get_ptr(j);
+		hdr = J64_GET_PTR(j);
 		fprintf(stderr, "bstr: %p, %s ", (void *)hdr, J64_BSTR_HDR_BUF(hdr));
 		break;
 	case J64_TAG_PRIM_ARR:
-		fprintf(stderr, "arr: %p", j64_get_ptr(j));
+		fprintf(stderr, "arr: %p", J64_GET_PTR(j));
 		break;
 	case J64_TAG_PRIM_OBJ:
-		fprintf(stderr, "obj: %p", j64_get_ptr(j));
+		fprintf(stderr, "obj: %p", J64_GET_PTR(j));
 		break;
 	default:
 		fprintf(stderr, "<UNKNOWN PRIMARY TAG> ");

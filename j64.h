@@ -46,15 +46,6 @@ typedef union j64_u {
 	j64_ptr_t	p;
 } j64_t;
 
-/* Boxed string memory header. */
-struct j64_bstr_hdr {
-	j64_uint_t len;
-	j64_byte_t buf; /* used only for addressing */
-};
-
-#define J64_BSTR_HDR_SIZEOF	(sizeof(struct j64_bstr_hdr) - 1)
-#define J64_BSTR_HDR_BUF(h)	((j64_byte_t *)&((h)->buf))
-
 /* 
  * The three least significant bits form a primary tag that denotes
  * how the next 61 bits should be interpreted, which can be one
@@ -86,6 +77,12 @@ struct j64_bstr_hdr {
 
 #define J64_GET_PRIM_TAG(j)	((j).u & J64_TAG_PRIM_MASK)
 #define J64_SET_PRIM_TAG(j, t)	((j).u |= (t))
+
+#define J64_GET_PTR(j)		((j64_ptr_t)((j).u & ~J64_TAG_PRIM_MASK))
+
+#define J64_UINT_MAX		0x3fffffffffffffffULL
+#define J64_INT_MIN		(-0x1fffffffffffffffLL - 1)
+#define J64_INT_MAX		0x1fffffffffffffffLL
 
 /*
  * 3 bits after a primary tag of J64_TAG_PRIM_LIT form a literal tag,
@@ -132,6 +129,17 @@ struct j64_bstr_hdr {
 #define J64_SET_SUBTAG_STR_LEN(j, n) \
     ((j).u |= (((n) & J64_SUBTAG_STR_LEN_MASK) << J64_SUBTAG_STR_LEN_OFFS))
 
+/* Boxed string memory header. */
+struct j64_bstr_hdr {
+	j64_uint_t len;
+	j64_byte_t buf; /* used only for addressing */
+};
+
+#define J64_BSTR_HDR(j)		((struct j64_bstr_hdr *)J64_GET_PTR(j))
+#define J64_BSTR_HDR_SIZEOF	(sizeof(struct j64_bstr_hdr) - 1)
+#define J64_BSTR_HDR_BUF(h)	((j64_byte_t *)&((h)->buf))
+
+
 /* Constructor routines. */
 #define J64_INIT(t, x)	((j64_t){ .t = (x) })
 
@@ -139,10 +147,8 @@ struct j64_bstr_hdr {
 #define j64_false()		J64_INIT(u, J64_SUBTAG_LIT_FALSE)
 #define j64_true()		J64_INIT(u, J64_SUBTAG_LIT_TRUE)
 #define j64_bool(x)		J64_INIT(u, (x) ? J64_TRUE : J64_FALSE)
-#define j64_uint(x) \
-    J64_INIT(u, ((x) << J64_TAG_PRIM_INT_SIZE) | J64_TAG_PRIM_INT0)
 #define j64_int(x) \
-    J64_INIT(i, ((x) << J64_TAG_PRIM_INT_SIZE) | J64_TAG_PRIM_INT0)
+    J64_INIT(u, ((j64_uint_t)(x) << J64_TAG_PRIM_INT_SIZE) | J64_TAG_PRIM_INT0)
 j64_t	j64_float(j64_float_t);
 j64_t	j64_str(const char *);
 #define j64_empty_str()		J64_INIT(u, J64_SUBTAG_LIT_ESTR)
@@ -179,7 +185,6 @@ j64_t	j64_obj(j64_t *, size_t);
 #define j64_is_obj(j)		(j64_is_bobj(j) || j64_is_empty_obj(j))
 
 /* Access routines (no type checking). */
-#define j64_get_ptr(j)		((j64_ptr_t)((j).u & ~J64_TAG_PRIM_MASK))
 #define j64_get_uint(j)		((j).u >> J64_TAG_PRIM_INT_SIZE)
 #define j64_get_int(j)		((j).i >> J64_TAG_PRIM_INT_SIZE)
 
