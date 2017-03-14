@@ -205,10 +205,6 @@ struct test_info tests[] = {
 	TEST(mk_str_with_len_7,		"tests string creation with 7 characters"),
 	TEST(mk_str_with_len_8,		"tests string creation with 8 characters"),
 
-	TEST(uint_eq_with_zero,		"tests unsigned integer equality with zero"),
-	TEST(uint_eq_with_one,		"tests unsigned integer equality with one"),
-	TEST(uint_eq_with_max,		"tests unsigned integer equality with maximum value"),
-	TEST(uint_neq_with_max_over,	"tests unsigned integer unequality with value over maximum"),
 	TEST(int_eq_with_zero,		"tests signed integer equality with zero"),
 	TEST(int_eq_with_one_minus,	"tests signed integer equality with minus one"),
 	TEST(int_eq_with_one,		"tests signed integer equality with one"),
