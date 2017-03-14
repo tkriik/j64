@@ -34,7 +34,7 @@ typedef uint8_t		 _j64_byte_t;
 typedef void		*_j64_ptr_t;
 
 /*
- * J64 union type. The unsigned integer element (u) is
+ * J64 union type. The unsigned integer word (w) is
  * used to perform bit manipulations, while other fields
  * are used for differnet types of accesses.
  */
@@ -137,22 +137,25 @@ struct _j64_bstr_hdr {
 
 #define _j64_bstr_hdr(j)	((struct _j64_bstr_hdr *)_j64_get_ptr(j))
 #define _J64_BSTR_HDR_SIZEOF	(sizeof(struct _j64_bstr_hdr) - 1)
-#define j64_bstr_len(j)							\
-    (((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len)
-#define _j64_bstr_buf(j)						\
-    (&((struct _j64_bstr_hdr *)_j64_get_ptr(j))->buf)
+#define j64_bstr_len(j)		(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len)
+#define _j64_bstr_buf(j)	(&(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->buf))
 
 /* Boxed array memory header. */
 struct _j64_arr_hdr {
-	_j64_word_t len;
+	_j64_word_t cnt;
+	_j64_word_t cap;
 	_j64_byte_t buf; /* used only for addressing */
 };
 
-#define _j64_arr_hdr(j)		((struct _j64_arr_hdr *)_j64_get_ptr(j))
 #define _J64_ARR_HDR_SIZEOF	(sizeof(struct _j64_arr_hdr) - 1)
 
+#define _j64_arr_hdr(j)		((struct _j64_arr_hdr *)_j64_get_ptr(j))
+#define j64_arr_cnt(j)		(((struct _j64_arr_hdr *)_j64_get_ptr(j))->cnt)
+#define _j64_arr_cap(j)		(((struct _j64_arr_hdr *)_j64_get_ptr(j))->cap)
+#define _j64_arr_buf(j)		((j64_t *)&(((struct _j64_arr_hdr *)_j64_get_ptr(j))->buf))
+
 /* Constructor routines. */
-#define _j64_init(t, x)	((j64_t){ .t = (x) })
+#define _j64_init(t, x)		((j64_t){ .t = (x) })
 
 #define j64_null()		_j64_init(w, J64_SUBTAG_LIT_NULL)
 #define j64_false()		_j64_init(w, J64_SUBTAG_LIT_FALSE)
@@ -206,15 +209,14 @@ j64_t	j64_obj(j64_t *, size_t);
     (j64_is_bstr(j) ? j64_bstr_get_at(j, i) : j64_istr_get_at(j, i))
 #define j64_str_set_at(j, i, x)						\
     (j64_is_bstr(j) ? j64_bstr_set_at(j, i, x) : j64_istr_set_at(j, i, x))
-
 #define _j64_istr_buf(j)	(&(j).b[1])
 #define _j64_str_buf(j)							\
     (j64_is_bstr(j) ? _j64_bstr_buf(j) : (j64_is_istr(j) ? _j64_istr_buf(j) : NULL))
-
 #define j64_str_len(j)							\
     (j64_is_bstr(j) ? j64_bstr_len(j) : (j64_is_istr(j) ? j64_istr_len(j) : 0))
-
 size_t j64_str_get(j64_t, char *, size_t);
+
+#define j64_arr_get_at(j, i)	(_j64_arr_buf(j)[i])
 
 /* Debug */
 void	j64_dbg(j64_t);

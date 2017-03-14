@@ -100,6 +100,38 @@ size_t j64_str_get(const j64_t j, char *dst, const size_t dst_size)
 	return min_len;
 }
 
+#define J64_ARR_CNT_MIN 6
+
+j64_t j64_arr(j64_t *js, size_t cnt)
+{
+	if (cnt == 0)
+		return j64_earr();
+
+	j64_t j;
+	// TODO: more sane initial capacity
+	size_t cap = cnt + (cnt / 2);
+	// TODO: check for overflow
+	j.p = malloc(_J64_ARR_HDR_SIZEOF + cap * sizeof(j));
+	if (j.p == NULL)
+		return j64_null();
+
+	struct _j64_arr_hdr *hdr = j.p;
+	hdr->cnt = cnt;
+	hdr->cap = cap;
+	j64_t *elems = _j64_arr_buf(j);
+	for (size_t i = 0; i < cnt; i++)
+		elems[i] = js[i];
+
+	_j64_prim_tag_set(j, J64_TAG_PRIM_ARR);
+
+	/* POST */
+	assert(j.p != NULL);
+	assert(j64_arr_cnt(j) == cnt);
+	assert(_j64_arr_cap(j) == cap);
+
+	return j;
+}
+
 void j64_dbg(j64_t j)
 {
 	struct _j64_bstr_hdr *hdr;

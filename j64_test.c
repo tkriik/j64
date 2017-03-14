@@ -6,6 +6,19 @@
 #include "j64.h"
 
 /*
+ * Library tests.
+ */
+int j64_word_size(void)
+{
+	return sizeof(_j64_word_t) == 8;
+}
+
+int j64_size(void)
+{
+	return sizeof(j64_t) == 8;
+}
+
+/*
  * Constructor tests.
  */
 
@@ -72,6 +85,19 @@ int mk_str_with_len_7(void)
 int mk_str_with_len_8(void)
 {
 	return j64_is_bstr(j64_str("12345678"));
+}
+
+int mk_arr_with_cnt_0(void)
+{
+	return j64_is_earr(j64_arr(NULL, 0));
+}
+
+int mk_arr_with_cnt_1(void)
+{
+	j64_t js[1];
+	js[0] = j64_null();
+	j64_t j = j64_arr(js, 1);
+	return j64_is_barr(j) && j64_is_null(j64_arr_get_at(j, 0));
 }
 
 /*
@@ -191,6 +217,9 @@ int run_test(struct test_info *i)
 }
 
 struct test_info tests[] = {
+	TEST(j64_word_size,		"tests J64 word storage size"),
+	TEST(j64_size,			"tests J64 union storage size"),
+
 	TEST(mk_null,			"tests null literal creation"),
 	TEST(mk_false,			"tests false literal creation"),
 	TEST(mk_true,			"tests true literal creation"),
@@ -204,6 +233,8 @@ struct test_info tests[] = {
 	TEST(mk_str_with_len_1,		"tests string creation with one character"),
 	TEST(mk_str_with_len_7,		"tests string creation with 7 characters"),
 	TEST(mk_str_with_len_8,		"tests string creation with 8 characters"),
+	TEST(mk_arr_with_cnt_0,		"tests array creation with zero elements"),
+	TEST(mk_arr_with_cnt_1,		"tests array creation with one element"),
 
 	TEST(int_eq_with_zero,		"tests signed integer equality with zero"),
 	TEST(int_eq_with_one_minus,	"tests signed integer equality with minus one"),
