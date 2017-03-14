@@ -1,6 +1,7 @@
 # misc
 j64_test
 *.swp
+*.core
 
 # Object files
 *.o
