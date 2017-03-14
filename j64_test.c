@@ -26,17 +26,17 @@ int mk_true(void)
 
 int mk_empty_str(void)
 {
-	return j64_is_empty_str(j64_empty_str());
+	return j64_is_estr(j64_estr());
 }
 
 int mk_empty_arr(void)
 {
-	return j64_is_empty_arr(j64_empty_arr());
+	return j64_is_earr(j64_earr());
 }
 
 int mk_empty_obj(void)
 {
-	return j64_is_empty_obj(j64_empty_obj());
+	return j64_is_eobj(j64_eobj());
 }
 
 int mk_int0(void)
@@ -56,7 +56,7 @@ int mk_float(void)
 
 int mk_str_with_len_0(void)
 {
-	return j64_is_empty_str(j64_str(""));
+	return j64_is_estr(j64_str(""));
 }
 
 int mk_str_with_len_1(void)
@@ -78,91 +78,71 @@ int mk_str_with_len_8(void)
  * Equality tests.
  */
 
-int uint_eq_with_zero(void)
-{
-	return j64_get_uint(j64_int(0)) == 0;
-}
-
-int uint_eq_with_one(void)
-{
-	return j64_get_uint(j64_int(1)) == 1;
-}
-
-int uint_eq_with_max(void)
-{
-	return j64_get_uint(j64_int(J64_UINT_MAX)) == J64_UINT_MAX;
-}
-
-int uint_neq_with_max_over(void)
-{
-	return j64_get_uint(j64_int(J64_UINT_MAX + 1)) != J64_UINT_MAX + 1;
-}
-
 int int_eq_with_zero(void)
 {
-	return j64_get_int(j64_int(0)) == 0;
+	return j64_int_get(j64_int(0)) == 0;
 }
 
 int int_eq_with_one_minus(void)
 {
-	return j64_get_int(j64_int(-1)) == -1;
+	return j64_int_get(j64_int(-1)) == -1;
 }
 
 int int_eq_with_one(void)
 {
-	return j64_get_int(j64_int(1)) == 1;
+	return j64_int_get(j64_int(1)) == 1;
 }
 
 int int_eq_with_min(void)
 {
-	return j64_get_int(j64_int(J64_INT_MIN)) == J64_INT_MIN;
+	return j64_int_get(j64_int(J64_INT_MIN)) == J64_INT_MIN;
 }
 
 int int_eq_with_max(void)
 {
-	return j64_get_int(j64_int(J64_INT_MAX)) == J64_INT_MAX;
+	return j64_int_get(j64_int(J64_INT_MAX)) == J64_INT_MAX;
 }
 
 int int_neq_with_min_under(void)
 {
-	return j64_get_int(j64_int(J64_INT_MIN - 1)) != J64_INT_MIN - 1;
+	return j64_int_get(j64_int(J64_INT_MIN - 1)) != J64_INT_MIN - 1;
 }
 
 int int_neq_with_max_over(void)
 {
-	return j64_get_int(j64_int(J64_INT_MAX + 1)) != J64_INT_MAX + 1;
+	return j64_int_get(j64_int(J64_INT_MAX + 1)) != J64_INT_MAX + 1;
 }
 
 int str_len_eq_0(void)
 {
-	return j64_get_str_len(j64_str("")) == 0;
+	return j64_str_len(j64_str("")) == 0;
 }
 
 int str_len_eq_1(void)
 {
-	return j64_get_str_len(j64_str("1")) == 1;
+	return j64_str_len(j64_str("1")) == 1;
 }
 
 int str_len_eq_7(void)
 {
-	return j64_get_str_len(j64_str("1234567")) == 7;
+	return j64_str_len(j64_str("1234567")) == 7;
 }
 
 int str_len_eq_8(void)
 {
-	return j64_get_str_len(j64_str("12345678")) == 8;
+	return j64_str_len(j64_str("12345678")) == 8;
 }
 
 int str_len_eq_16(void)
 {
-	return j64_get_str_len(j64_str("YELLOW SUBMARINE")) == 16;
+	return j64_str_len(j64_str("YELLOW SUBMARINE")) == 16;
 }
 
 #define STR_EQ_TEST_TEMPLATE(_s, _n)				\
 	const char *s = _s;					\
 	j64_t j = j64_str(_s);					\
 	char b[_n + 1] = _s;					\
-	size_t len = j64_get_str(j, b, sizeof(b));		\
+	size_t len = j64_str_get(j, b, sizeof(b));		\
 	return len == _n && strcmp(s, b) == 0;
 
 int str_eq_with_len_0(void)

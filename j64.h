@@ -27,23 +27,23 @@
 #include <stdint.h>
 #include <stddef.h>
 
-typedef uint64_t	 j64_uint_t;
-typedef int64_t		 j64_int_t;
-typedef double		 j64_float_t;
-typedef uint8_t		 j64_byte_t;
-typedef void		*j64_ptr_t;
+typedef uint64_t	 _j64_word_t;
+typedef int64_t		 _j64_int_t;
+typedef double		 _j64_float_t;
+typedef uint8_t		 _j64_byte_t;
+typedef void		*_j64_ptr_t;
 
 /*
  * J64 union type. The unsigned integer element (u) is
  * used to perform bit manipulations, while other fields
  * are used for differnet types of accesses.
  */
-typedef union j64_u {
-	j64_uint_t	u;
-	j64_int_t	i;
-	j64_float_t	f;
-	j64_byte_t	b[8];
-	j64_ptr_t	p;
+typedef union {
+	_j64_word_t	w;
+	_j64_int_t	i;
+	_j64_float_t	f;
+	_j64_byte_t	b[8];
+	_j64_ptr_t	p;
 } j64_t;
 
 /* 
@@ -61,10 +61,10 @@ typedef union j64_u {
  * Two bit sequences denote an integer, which are 011 (3) and 111 (7).
  * This way we can get one free extra bit when storing integers (thanks vihtori).
  */
-#define J64_TAG_PRIM_SIZE	3
-#define J64_TAG_PRIM_MASK	((1 << J64_TAG_PRIM_SIZE) - 1)
-#define J64_TAG_PRIM_INT_SIZE	(J64_TAG_PRIM_SIZE - 1)
-#define J64_TAG_PRIM_INT_MASK	((1 << J64_TAG_PRIM_INT_SIZE) - 1)
+#define _J64_TAG_PRIM_SIZE	3
+#define _J64_TAG_PRIM_MASK	((1 << _J64_TAG_PRIM_SIZE) - 1)
+#define _J64_TAG_PRIM_INT_SIZE	(_J64_TAG_PRIM_SIZE - 1)
+#define _J64_TAG_PRIM_INT_MASK	((1 << _J64_TAG_PRIM_INT_SIZE) - 1)
 
 #define J64_TAG_PRIM_LIT	0x0
 #define J64_TAG_PRIM_FLOAT	0x1
@@ -75,10 +75,10 @@ typedef union j64_u {
 #define J64_TAG_PRIM_OBJ	0x6
 #define J64_TAG_PRIM_INT1	0x7
 
-#define J64_GET_PRIM_TAG(j)	((j).u & J64_TAG_PRIM_MASK)
-#define J64_SET_PRIM_TAG(j, t)	((j).u |= (t))
+#define j64_prim_tag(j)	((j).w & _J64_TAG_PRIM_MASK)
+#define _j64_prim_tag_set(j, t)	((j).w |= (t))
 
-#define J64_GET_PTR(j)		((j64_ptr_t)((j).u & ~J64_TAG_PRIM_MASK))
+#define _j64_get_ptr(j)		((_j64_ptr_t)((j).w & ~_J64_TAG_PRIM_MASK))
 
 #define J64_UINT_MAX		0x3fffffffffffffffULL
 #define J64_INT_MIN		(-0x1fffffffffffffffLL - 1)
@@ -95,7 +95,7 @@ typedef union j64_u {
  *   - empty array
  *   - empty object
  */
-#define J64_SUBTAG_LIT_OFFS	J64_TAG_PRIM_SIZE
+#define J64_SUBTAG_LIT_OFFS	_J64_TAG_PRIM_SIZE
 #define J64_SUBTAG_LIT_SIZE	(3 + J64_SUBTAG_LIT_OFFS)
 #define J64_SUBTAG_LIT_MASK	((1 << J64_SUBTAG_LIT_SIZE) - 1)
 
@@ -111,104 +111,110 @@ typedef union j64_u {
  * These can be embedded in the literal tag since it leaves two unused
  * values.
  */
-#define J64_SUBTAG_LIT_NON	((0x6 << J64_SUBTAG_LIT_OFFS) | J64_TAG_PRIM_LIT)
-#define J64_SUBTAG_LIT_DEL	((0x7 << J64_SUBTAG_LIT_OFFS) | J64_TAG_PRIM_LIT)
+#define _J64_SUBTAG_LIT_NON	((0x6 << J64_SUBTAG_LIT_OFFS) | J64_TAG_PRIM_LIT)
+#define _J64_SUBTAG_LIT_DEL	((0x7 << J64_SUBTAG_LIT_OFFS) | J64_TAG_PRIM_LIT)
 
-#define J64_GET_SUBTAG_LIT(j)	((j).u & J64_SUBTAG_LIT_MASK)
+#define j64_subtag_lit(j)	((j).w & J64_SUBTAG_LIT_MASK)
 
 /*
  * 3 bits after a primary tag of J64_TAG_PRIM_ISTR contain a length
  * value for a short immediate string.
  */
-#define J64_SUBTAG_STR_LEN_OFFS J64_TAG_PRIM_SIZE
-#define J64_SUBTAG_STR_LEN_SIZE	(3 + J64_SUBTAG_STR_LEN_OFFS)
-#define J64_SUBTAG_STR_LEN_MASK ((1 << J64_SUBTAG_STR_LEN_SIZE) - 1)
+#define _J64_SUBTAG_STR_LEN_OFFS _J64_TAG_PRIM_SIZE
+#define _J64_SUBTAG_STR_LEN_SIZE (3 + _J64_SUBTAG_STR_LEN_OFFS)
+#define _J64_SUBTAG_STR_LEN_MASK ((1 << _J64_SUBTAG_STR_LEN_SIZE) - 1)
 
-#define J64_GET_SUBTAG_STR_LEN(j) \
-    (((j).u & J64_SUBTAG_STR_LEN_MASK) >> J64_SUBTAG_STR_LEN_OFFS)
-#define J64_SET_SUBTAG_STR_LEN(j, n) \
-    ((j).u |= (((n) & J64_SUBTAG_STR_LEN_MASK) << J64_SUBTAG_STR_LEN_OFFS))
+#define j64_istr_len(j)							\
+    (((j).w & _J64_SUBTAG_STR_LEN_MASK) >> _J64_SUBTAG_STR_LEN_OFFS)
+#define _j64_istr_len_set(j, n)						\
+    ((j).w |= (((n) & _J64_SUBTAG_STR_LEN_MASK) << _J64_SUBTAG_STR_LEN_OFFS))
 
 /* Boxed string memory header. */
-struct j64_bstr_hdr {
-	j64_uint_t len;
-	j64_byte_t buf; /* used only for addressing */
+struct _j64_bstr_hdr {
+	_j64_word_t len;
+	_j64_byte_t buf; /* used only for addressing */
 };
 
-#define J64_BSTR_HDR(j)		((struct j64_bstr_hdr *)J64_GET_PTR(j))
-#define J64_BSTR_HDR_SIZEOF	(sizeof(struct j64_bstr_hdr) - 1)
-#define J64_GET_BSTR_LEN(j)						\
-    (((struct j64_bstr_hdr *)J64_GET_PTR(j))->len)
-#define J64_GET_BSTR_BUF(j)						\
-    ((j64_byte_t *)&((struct j64_bstr_hdr *)J64_GET_PTR(j))->buf)
+#define _j64_bstr_hdr(j)	((struct _j64_bstr_hdr *)_j64_get_ptr(j))
+#define _J64_BSTR_HDR_SIZEOF	(sizeof(struct _j64_bstr_hdr) - 1)
+#define j64_bstr_len(j)							\
+    (((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len)
+#define _j64_bstr_buf(j)						\
+    (&((struct _j64_bstr_hdr *)_j64_get_ptr(j))->buf)
+
+/* Boxed array memory header. */
+struct _j64_arr_hdr {
+	_j64_word_t len;
+	_j64_byte_t buf; /* used only for addressing */
+};
+
+#define _j64_arr_hdr(j)		((struct _j64_arr_hdr *)_j64_get_ptr(j))
+#define _J64_ARR_HDR_SIZEOF	(sizeof(struct _j64_arr_hdr) - 1)
 
 /* Constructor routines. */
-#define J64_INIT(t, x)	((j64_t){ .t = (x) })
+#define _j64_init(t, x)	((j64_t){ .t = (x) })
 
-#define j64_null()		J64_INIT(u, J64_SUBTAG_LIT_NULL)
-#define j64_false()		J64_INIT(u, J64_SUBTAG_LIT_FALSE)
-#define j64_true()		J64_INIT(u, J64_SUBTAG_LIT_TRUE)
-#define j64_bool(x)		J64_INIT(u, (x) ? J64_TRUE : J64_FALSE)
-#define j64_int(x) \
-    J64_INIT(u, ((j64_uint_t)(x) << J64_TAG_PRIM_INT_SIZE) | J64_TAG_PRIM_INT0)
-j64_t	j64_float(j64_float_t);
+#define j64_null()		_j64_init(w, J64_SUBTAG_LIT_NULL)
+#define j64_false()		_j64_init(w, J64_SUBTAG_LIT_FALSE)
+#define j64_true()		_j64_init(w, J64_SUBTAG_LIT_TRUE)
+#define j64_bool(x)		_j64_init(w, (x) ? J64_TRUE : J64_FALSE)
+#define j64_int(x)							\
+    _j64_init(w, ((_j64_word_t)(x) << _J64_TAG_PRIM_INT_SIZE) | J64_TAG_PRIM_INT0)
+j64_t	j64_float(double);
 j64_t	j64_str(const char *);
-#define j64_empty_str()		J64_INIT(u, J64_SUBTAG_LIT_ESTR)
+#define j64_estr()		_j64_init(w, J64_SUBTAG_LIT_ESTR)
 j64_t	j64_arr(j64_t *, size_t);
-#define j64_empty_arr()		J64_INIT(u, J64_SUBTAG_LIT_EARR)
+#define j64_earr()		_j64_init(w, J64_SUBTAG_LIT_EARR)
 j64_t	j64_obj(j64_t *, size_t);
-#define j64_empty_obj()		J64_INIT(u, J64_SUBTAG_LIT_EOBJ)
+#define j64_eobj()		_j64_init(w, J64_SUBTAG_LIT_EOBJ)
 
 /* Testing routines. */
-#define	j64_is_lit(j)		(J64_GET_PRIM_TAG(j) == J64_TAG_PRIM_LIT)
-#define j64_is_null(j)		(J64_GET_SUBTAG_LIT(j) == J64_SUBTAG_LIT_NULL)
+#define	j64_is_lit(j)		(j64_prim_tag(j) == J64_TAG_PRIM_LIT)
+#define j64_is_null(j)		(j64_subtag_lit(j) == J64_SUBTAG_LIT_NULL)
 
-#define j64_is_float(j)		(J64_GET_PRIM_TAG(j) == J64_TAG_PRIM_FLOAT)
+#define j64_is_float(j)		(j64_prim_tag(j) == J64_TAG_PRIM_FLOAT)
 
-#define j64_is_false(j)		(J64_GET_SUBTAG_LIT(j) == J64_SUBTAG_LIT_FALSE)
-#define j64_is_true(j)		(J64_GET_SUBTAG_LIT(j) == J64_SUBTAG_LIT_TRUE)
+#define j64_is_false(j)		(j64_subtag_lit(j) == J64_SUBTAG_LIT_FALSE)
+#define j64_is_true(j)		(j64_subtag_lit(j) == J64_SUBTAG_LIT_TRUE)
 #define j64_is_bool(j)		(j64_is_false(j) || j64_is_true(j))
 
 #define j64_is_int(j)							\
-    (J64_GET_PRIM_TAG(j) == J64_TAG_PRIM_INT0 ||			\
-     J64_GET_PRIM_TAG(j) == J64_TAG_PRIM_INT1)
+    (j64_prim_tag(j) == J64_TAG_PRIM_INT0 ||				\
+     j64_prim_tag(j) == J64_TAG_PRIM_INT1)
 
-#define j64_is_istr(j)		(J64_GET_PRIM_TAG(j) == J64_TAG_PRIM_ISTR)
-#define j64_is_bstr(j)		(J64_GET_PRIM_TAG(j) == J64_TAG_PRIM_BSTR)
-#define j64_is_empty_str(j)	(J64_GET_SUBTAG_LIT(j) == J64_SUBTAG_LIT_ESTR)
-#define j64_is_str(j)		(j64_is_bstr(j) || j64_is_istr(j) || j64_is_empty_str(j))
+#define j64_is_istr(j)		(j64_prim_tag(j) == J64_TAG_PRIM_ISTR)
+#define j64_is_bstr(j)		(j64_prim_tag(j) == J64_TAG_PRIM_BSTR)
+#define j64_is_estr(j)		(j64_subtag_lit(j) == J64_SUBTAG_LIT_ESTR)
+#define j64_is_str(j)		(j64_is_bstr(j) || j64_is_istr(j) || j64_is_estr(j))
 
-#define j64_is_barr(j)		(J64_GET_PRIM_TAG(j) == J64_TAG_PRIM_ARR)
-#define j64_is_empty_arr(j)	(J64_GET_SUBTAG_LIT(j) == J64_SUBTAG_LIT_EARR)
-#define j64_is_arr(j)		(j64_is_barr(j) || j64_is_empty_arr(j))
+#define j64_is_barr(j)		(j64_prim_tag(j) == J64_TAG_PRIM_ARR)
+#define j64_is_earr(j)		(j64_subtag_lit(j) == J64_SUBTAG_LIT_EARR)
+#define j64_is_arr(j)		(j64_is_barr(j) || j64_is_earr(j))
 
-#define j64_is_bobj(j)		(J64_GET_PRIM_TAG(j) == J64_TAG_PRIM_OBJ)
-#define j64_is_empty_obj(j)	(J64_GET_SUBTAG_LIT(j) == J64_SUBTAG_LIT_EOBJ)
-#define j64_is_obj(j)		(j64_is_bobj(j) || j64_is_empty_obj(j))
+#define j64_is_bobj(j)		(j64_prim_tag(j) == J64_TAG_PRIM_OBJ)
+#define j64_is_eobj(j)		(j64_subtag_lit(j) == J64_SUBTAG_LIT_EOBJ)
+#define j64_is_obj(j)		(j64_is_bobj(j) || j64_is_eobj(j))
 
 /* Access routines (no type checking). */
-#define j64_get_uint(j)		((j).u >> J64_TAG_PRIM_INT_SIZE)
-#define j64_get_int(j)		((j).i >> J64_TAG_PRIM_INT_SIZE)
+#define j64_int_get(j)		((j).i >> _J64_TAG_PRIM_INT_SIZE)
 
 #define j64_istr_get_at(j, i)		((j).b[7 - (i)])
 #define j64_istr_set_at(j, i, x)	((j).b[7 - (i)] = (x))
-#define j64_bstr_get_at(j, i)		(J64_GET_BSTR_BUF(j)[i])
-#define j64_bstr_set_at(j, i, x)	((J64_GET_BSTR_BUF(j)[i]) = (x))
-#define j64_str_get_at(j, i) \
+#define j64_bstr_get_at(j, i)		((_j64_bstr_buf(j))[i])
+#define j64_bstr_set_at(j, i, x)	((_j64_bstr_buf(j))[i] = (x))
+#define j64_str_get_at(j, i)						\
     (j64_is_bstr(j) ? j64_bstr_get_at(j, i) : j64_istr_get_at(j, i))
-#define j64_str_set_at(j, i, x) \
+#define j64_str_set_at(j, i, x)						\
     (j64_is_bstr(j) ? j64_bstr_set_at(j, i, x) : j64_istr_set_at(j, i, x))
 
-#define _j64_get_istr_buf(j)	(&(j).b[1])
-#define _j64_get_str_buf(j) \
-    (j64_is_bstr(j) ? J64_GET_BSTR_BUF(j) : (j64_is_istr(j) ? &(j).b[1]) : NULL)
+#define _j64_istr_buf(j)	(&(j).b[1])
+#define _j64_str_buf(j)							\
+    (j64_is_bstr(j) ? _j64_bstr_buf(j) : (j64_is_istr(j) ? _j64_istr_buf(j) : NULL))
 
-size_t j64_get_str(j64_t, char *, size_t);
+#define j64_str_len(j)							\
+    (j64_is_bstr(j) ? j64_bstr_len(j) : (j64_is_istr(j) ? j64_istr_len(j) : 0))
 
-#define j64_get_istr_len(j)	J64_GET_SUBTAG_STR_LEN(j)
-#define j64_get_bstr_len(j)	J64_GET_BSTR_LEN(j)
-#define j64_get_str_len(j) \
-    (j64_is_bstr(j) ? J64_GET_BSTR_LEN(j) : (j64_is_istr(j) ? j64_get_istr_len(j) : 0))
+size_t j64_str_get(j64_t, char *, size_t);
 
 /* Debug */
 void	j64_dbg(j64_t);

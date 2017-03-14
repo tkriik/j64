@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -6,59 +7,71 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-j64_t j64_float(j64_float_t f)
+j64_t j64_float(double f)
 {
 	j64_t j;
 	j.f = f;
-	j.u |= J64_TAG_PRIM_FLOAT;
+	j.w |= J64_TAG_PRIM_FLOAT;
 	return j;
 }
 
 j64_t j64_str(const char *s)
 {
+	/* PRE */
+	assert(s != NULL);
+
 	/* Return immediate empty string if necessary. */
 	if (*s == '\0')
-		return j64_empty_str();
+		return j64_estr();
 
-	j64_t j;
-	size_t len = strlen(s);
+	j64_t j = {0};
+	const size_t len = strlen(s);
 
 	/*
 	 * Construct immediate string if string fits into 56 bits,
 	 * otherwise allocate and construct a boxed string.
 	 */
 	if (len < 8) {
-		memcpy(&j.b[1], s, len);
-		J64_SET_SUBTAG_STR_LEN(j, len);
-		J64_SET_PRIM_TAG(j, J64_TAG_PRIM_ISTR);
+		memcpy(_j64_istr_buf(j), s, len);
+		_j64_istr_len_set(j, len);
+		_j64_prim_tag_set(j, J64_TAG_PRIM_ISTR);
 	} else {
-		j.p = malloc(J64_BSTR_HDR_SIZEOF + len);
+		j.p = malloc(_J64_BSTR_HDR_SIZEOF + len);
 		if (j.p == NULL)
 			return j64_null();
 
-		struct j64_bstr_hdr *h = j.p;
+		struct _j64_bstr_hdr *h = j.p;
 		h->len = len;
-		memcpy(&h->buf, s, len);
-		J64_SET_PRIM_TAG(j, J64_TAG_PRIM_BSTR);
+		memcpy(_j64_bstr_buf(j), s, len);
+		_j64_prim_tag_set(j, J64_TAG_PRIM_BSTR);
 	}
+
+	/* POST */
+	assert(j64_is_str(j));
+	assert(j64_str_len(j) == len);
+	assert(strncmp((const char *)_j64_str_buf(j), s, len) == 0);
 
 	return j;
 }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-size_t j64_get_str(j64_t j, char *dst, size_t dst_size)
+size_t j64_str_get(const j64_t j, char *dst, const size_t dst_size)
 {
+	/* PRE */
+	assert(j64_is_str(j));
+	assert(dst != NULL);
+
 	if (dst_size == 0)
 		return 0;
 
 	size_t dst_len = dst_size - 1;
 
-	const j64_byte_t *src;
+	const _j64_byte_t *src;
 	size_t src_len;
-	switch (J64_GET_PRIM_TAG(j)) {
+	switch (j64_prim_tag(j)) {
 	case J64_TAG_PRIM_LIT:
-		switch (J64_GET_SUBTAG_LIT(j)) {
+		switch (j64_subtag_lit(j)) {
 		case J64_SUBTAG_LIT_ESTR:
 			*dst = '\0';
 			return 0;
@@ -66,32 +79,35 @@ size_t j64_get_str(j64_t j, char *dst, size_t dst_size)
 			return 0;
 		}
 	case J64_TAG_PRIM_ISTR:
-		src = _j64_get_istr_buf(j);
-		src_len = j64_get_istr_len(j);
+		src = _j64_istr_buf(j);
+		src_len = j64_istr_len(j);
 		break;
 	case J64_TAG_PRIM_BSTR:
-		src = J64_GET_BSTR_BUF(j);
-		src_len = J64_GET_BSTR_LEN(j);
+		src = _j64_bstr_buf(j);
+		src_len = j64_bstr_len(j);
 		break;
 	default:
 		return 0;
 	}
 
-	size_t min_len = MIN(src_len, dst_len);
+	const size_t min_len = MIN(src_len, dst_len);
 	memcpy(dst, src, min_len);
 	dst[min_len] = '\0';
+
+	/* POST */
+	assert(strncmp((const char*)_j64_str_buf(j), dst, min_len) == 0);
 
 	return min_len;
 }
 
 void j64_dbg(j64_t j)
 {
-	struct j64_bstr_hdr *hdr;
+	struct _j64_bstr_hdr *hdr;
 
-	switch (J64_GET_PRIM_TAG(j)) {
+	switch (j64_prim_tag(j)) {
 	case J64_TAG_PRIM_LIT:
 		fprintf(stderr, "literal: ");
-		switch (J64_GET_SUBTAG_LIT(j)) {
+		switch (j64_subtag_lit(j)) {
 		case J64_SUBTAG_LIT_NULL:
 			fprintf(stderr, "null ");
 			break;
@@ -112,32 +128,32 @@ void j64_dbg(j64_t j)
 			break;
 		default:
 			fprintf(stderr, "<UNKNOWN LITERAL SUBTAG (%" PRIx64 ")> ",
-			    J64_GET_SUBTAG_LIT(j));
+			    j64_subtag_lit(j));
 			break;
 		}
 		break;
 	case J64_TAG_PRIM_INT0:
 	case J64_TAG_PRIM_INT1:
-		fprintf(stderr, "int: %" PRId64 " ", j64_get_int(j));
+		fprintf(stderr, "int: %" PRId64 " ", j64_int_get(j));
 		break;
 	case J64_TAG_PRIM_FLOAT:
 		fprintf(stderr, "float: %lf ", j.f);
 		break;
 	case J64_TAG_PRIM_ISTR:
-		fprintf(stderr, "istr (%llu): ", J64_GET_SUBTAG_STR_LEN(j));
-		for (size_t i = 1; i <= J64_GET_SUBTAG_STR_LEN(j); i++)
+		fprintf(stderr, "istr (%llu): ", j64_istr_len(j));
+		for (size_t i = 1; i <= j64_istr_len(j); i++)
 			fputc(j.b[8 - i], stderr);
 		fputc(' ', stderr);
 		break;
 	case J64_TAG_PRIM_BSTR:
-		hdr = J64_GET_PTR(j);
+		hdr = _j64_get_ptr(j);
 		fprintf(stderr, "bstr (%llu): %p, %s ", hdr->len, (void *)hdr, &hdr->buf);
 		break;
 	case J64_TAG_PRIM_ARR:
-		fprintf(stderr, "arr: %p", J64_GET_PTR(j));
+		fprintf(stderr, "arr: %p", _j64_get_ptr(j));
 		break;
 	case J64_TAG_PRIM_OBJ:
-		fprintf(stderr, "obj: %p", J64_GET_PTR(j));
+		fprintf(stderr, "obj: %p", _j64_get_ptr(j));
 		break;
 	default:
 		fprintf(stderr, "<UNKNOWN PRIMARY TAG> ");
