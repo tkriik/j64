@@ -107,6 +107,9 @@ j64_t j64_arr(j64_t *js, size_t cnt)
 	if (cnt == 0)
 		return j64_earr();
 
+	/* PRE */
+	assert(js != NULL);
+
 	j64_t j;
 	// TODO: more sane initial capacity
 	size_t cap = cnt + (cnt / 2);
@@ -126,8 +129,9 @@ j64_t j64_arr(j64_t *js, size_t cnt)
 
 	/* POST */
 	assert(j.p != NULL);
+	assert(j64_is_barr(j));
 	assert(j64_arr_cnt(j) == cnt);
-	assert(_j64_arr_cap(j) == cap);
+	assert(j64_arr_cap(j) == cap);
 
 	return j;
 }
