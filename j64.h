@@ -82,7 +82,7 @@ typedef union {
 #define J64_TAG_PRIM_OBJ	0x6
 #define J64_TAG_PRIM_INT1	0x7
 
-#define j64_prim_tag(j)	((j).w & _J64_TAG_PRIM_MASK)
+#define j64_prim_tag(j)		((j).w & _J64_TAG_PRIM_MASK)
 #define _j64_prim_tag_set(j, t)	((j).w |= (t))
 
 #define _j64_get_ptr(j)		((_j64_ptr_t)((j).w & ~_J64_TAG_PRIM_MASK))
@@ -145,9 +145,9 @@ struct _j64_bstr_hdr {
 
 #define _j64_bstr_hdr(j)	((struct _j64_bstr_hdr *)_j64_get_ptr(j))
 #define _J64_BSTR_HDR_SIZEOF	(sizeof(_j64_word_t))
-#define j64_bstr_len(j)		(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len)
-#define _j64_bstr_len_set(j, n)	(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len = (n))
-#define _j64_bstr_buf(j)	(&(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->buf))
+#define j64_bstr_len(j)		(_j64_bstr_hdr(j)->len)
+#define _j64_bstr_len_set(j, n)	(_j64_bstr_hdr(j)->len = (n))
+#define _j64_bstr_buf(j)	(&(_j64_bstr_hdr(j)->buf))
 
 /* Boxed array memory header. */
 struct _j64_arr_hdr {
@@ -159,9 +159,9 @@ struct _j64_arr_hdr {
 #define _J64_ARR_HDR_SIZEOF	(sizeof(_j64_word_t) + sizeof(_j64_word_t))
 
 #define _j64_arr_hdr(j)		((struct _j64_arr_hdr *)_j64_get_ptr(j))
-#define j64_arr_cnt(j)		(((struct _j64_arr_hdr *)_j64_get_ptr(j))->cnt)
-#define j64_arr_cap(j)		(((struct _j64_arr_hdr *)_j64_get_ptr(j))->cap)
-#define _j64_arr_buf(j)		((j64_t *)&(((struct _j64_arr_hdr *)_j64_get_ptr(j))->buf))
+#define j64_arr_cnt(j)		(_j64_arr_hdr(j)->cnt)
+#define j64_arr_cap(j)		(_j64_arr_hdr(j)->cap)
+#define _j64_arr_buf(j)		((j64_t *)&(_j64_arr_hdr(j)->buf))
 
 /* Constructor routines. */
 #define _j64_init(t, x)		((j64_t){ .t = (x) })
