@@ -6,16 +6,55 @@
 #include "j64.h"
 
 /*
- * Library tests.
+ * System tests.
  */
-int j64_word_size(void)
+
+int sys_word_size(void)
 {
 	return sizeof(_j64_word_t) == 8;
 }
 
-int j64_size(void)
+int sys_ptr_size(void)
+{
+	return sizeof(_j64_ptr_t) <= 8;
+}
+
+int sys_j64_union_size(void)
 {
 	return sizeof(j64_t) == 8;
+}
+
+#define NMALLOCS	65536
+#define MALLOC_SIZE	16
+
+int sys_malloc_alignment(void)
+{
+	int rc = 1;
+
+	union {
+		_j64_ptr_t  p;
+		_j64_word_t w;
+	} us[NMALLOCS];
+
+	size_t nmallocs = 0;
+	for (size_t i = 0; i < NMALLOCS; i++) {
+		us[i].p = malloc(MALLOC_SIZE);
+		if (us[i].p == NULL) {
+			rc = 0;
+			goto free;
+		}
+		if (us[i].w != (us[i].w & ~_J64_TAG_PRIM_MASK)) {
+			rc = 0;
+			goto free;
+		}
+		nmallocs++;
+	}
+
+free:
+	for (size_t i = 0; i < nmallocs; i++)
+		free(us[i].p);
+
+	return rc;
 }
 
 /*
@@ -217,8 +256,10 @@ int run_test(struct test_info *i)
 }
 
 struct test_info tests[] = {
-	TEST(j64_word_size,		"tests J64 word storage size"),
-	TEST(j64_size,			"tests J64 union storage size"),
+	TEST(sys_word_size,		"checks J64 word storage size"),
+	TEST(sys_ptr_size,		"checks J64 pointer storage size"),
+	TEST(sys_j64_union_size,	"checks J64 union storage size"),
+	TEST(sys_malloc_alignment,	"checks memory allocator pointer alignment"),
 
 	TEST(mk_null,			"tests null literal creation"),
 	TEST(mk_false,			"tests false literal creation"),
