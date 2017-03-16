@@ -15,20 +15,37 @@ j64_t j64_float(double f)
 	return j;
 }
 
-j64_t j64_str(const char *s)
+j64_t j64_istrn(const char *s, size_t len)
 {
-	size_t len = strlen(s);
-	return j64_strn(s, len);
+	/* Truncate length if necessary. */
+	len = len <= J64_ISTR_LEN_MAX ? len : J64_ISTR_LEN_MAX;
+
+	j64_t j = _J64_INITIALIZER;
+	_j64_prim_tag_set(j, J64_TAG_PRIM_ISTR);
+	_j64_istr_len_set(j, len);
+	memcpy(_j64_istr_buf(j), s, len);
+
+	/* POST */
+	assert(j64_is_istr(j));
+	assert(j64_istr_len(j) == len);
+	assert(strncmp((const char *)_j64_istr_buf(j), s, len) == 0);
+
+	return j;
 }
 
-j64_t j64_strn(const char *s, size_t len)
+j64_t j64_istr(const char *s)
 {
+	size_t len = strlen(s);
+	return j64_istrn(s, len);
+}
+
+j64_t j64_strn(const char *s, const size_t len)
+{
+	if (len == 0)
+		return j64_estr();
+
 	/* PRE */
 	assert(s != NULL);
-
-	/* Return immediate empty string if necessary. */
-	if (*s == '\0')
-		return j64_estr();
 
 	j64_t j = {0};
 
@@ -57,6 +74,12 @@ j64_t j64_strn(const char *s, size_t len)
 	assert(strncmp((const char *)_j64_str_buf(j), s, len) == 0);
 
 	return j;
+}
+
+j64_t j64_str(const char *s)
+{
+	size_t len = strlen(s);
+	return j64_strn(s, len);
 }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

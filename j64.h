@@ -46,6 +46,8 @@ typedef union {
 	_j64_ptr_t	p;
 } j64_t;
 
+#define _J64_INITIALIZER {0}
+
 /* 
  * The three least significant bits form a primary tag that denotes
  * how the next 61 bits should be interpreted, which can be one
@@ -144,6 +146,7 @@ struct _j64_bstr_hdr {
 #define _j64_bstr_hdr(j)	((struct _j64_bstr_hdr *)_j64_get_ptr(j))
 #define _J64_BSTR_HDR_SIZEOF	(sizeof(struct _j64_bstr_hdr) - 1)
 #define j64_bstr_len(j)		(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len)
+#define _j64_bstr_len_set(j, n)	(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len = (n))
 #define _j64_bstr_buf(j)	(&(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->buf))
 
 /* Boxed array memory header. */
@@ -170,8 +173,10 @@ struct _j64_arr_hdr {
 #define j64_int(x)							\
     _j64_init(w, ((_j64_word_t)(x) << _J64_TAG_PRIM_INT_SIZE) | J64_TAG_PRIM_INT0)
 j64_t	j64_float(double);
-j64_t	j64_str(const char *);
+j64_t	j64_istrn(const char *, size_t);
+j64_t	j64_istr(const char *);
 j64_t	j64_strn(const char *, size_t);
+j64_t	j64_str(const char *);
 #define j64_estr()		_j64_init(w, J64_SUBTAG_LIT_ESTR)
 j64_t	j64_arr(const j64_t *, size_t);
 #define j64_earr()		_j64_init(w, J64_SUBTAG_LIT_EARR)

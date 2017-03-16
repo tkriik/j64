@@ -106,6 +106,26 @@ int mk_float(void)
 	return j64_is_float(j64_float(0.0));
 }
 
+int mk_istr_with_0(void)
+{
+	return j64_is_istr(j64_istr(""));
+}
+
+int mk_istr_with_1(void)
+{
+	return j64_is_istr(j64_istr("1"));
+}
+
+int mk_istr_with_7(void)
+{
+	return j64_is_istr(j64_istr("1234567"));
+}
+
+int mk_istr_with_8(void)
+{
+	return j64_is_istr(j64_istr("12345678"));
+}
+
 int mk_str_with_0(void)
 {
 	return j64_is_estr(j64_str(""));
@@ -176,6 +196,26 @@ int int_neq_with_min_under(void)
 int int_neq_with_max_over(void)
 {
 	return j64_int_get(j64_int(J64_INT_MAX + 1)) != J64_INT_MAX + 1;
+}
+
+int istr_len_with_0(void)
+{
+	return j64_istr_len(j64_istr("")) == 0;
+}
+
+int istr_len_with_1(void)
+{
+	return j64_istr_len(j64_istr("1")) == 1;
+}
+
+int istr_len_with_7(void)
+{
+	return j64_istr_len(j64_istr("1234567")) == 7;
+}
+
+int istr_len_with_7_over(void)
+{
+	return j64_istr_len(j64_istr("12345678")) == 7;
 }
 
 int str_len_with_0(void)
@@ -331,6 +371,10 @@ struct test_info tests[] = {
 	TEST(mk_int0,			"tests zero integer creation"),
 	TEST(mk_int1,			"tests complemented integer creation"),
 	TEST(mk_float,			"tests floating-point number creation"),
+	TEST(mk_istr_with_0,		"tests immediate string creation with empty string"),
+	TEST(mk_istr_with_1,		"tests immediate string creation with one character"),
+	TEST(mk_istr_with_7,		"tests immediate string creation with 7 characters"),
+	TEST(mk_istr_with_8,		"tests immediate string creation with 8 characters"),
 	TEST(mk_str_with_0,		"tests string creation with empty string"),
 	TEST(mk_str_with_1,		"tests string creation with one character"),
 	TEST(mk_str_with_7,		"tests string creation with 7 characters"),
@@ -346,16 +390,20 @@ struct test_info tests[] = {
 	TEST(int_neq_with_min_under,	"tests signed integer unequality with value under minimum"),
 	TEST(int_neq_with_max_over,	"tests signed integer unequality with value over maximum"),
 
+	TEST(istr_len_with_0,		"tests immediate string length with empty string"),
+	TEST(istr_len_with_1,		"tests immediate string length with one character"),
+	TEST(istr_len_with_7,		"tests immediate string length with 7 characters"),
+	TEST(istr_len_with_7_over,	"tests immediate string length with over 7 characters"),
 	TEST(str_len_with_0,		"tests string length with empty string"),
 	TEST(str_len_with_1,		"tests string length with one character"),
 	TEST(str_len_with_7,		"tests string length with 7 characters"),
 	TEST(str_len_with_8,		"tests string length with 8 characters"),
 	TEST(str_len_with_16,		"tests string length with 16 characters"),
-	TEST(str_idx_get_with_1,	"tests indexed string read with 1 character"),
+	TEST(str_idx_get_with_1,	"tests indexed string read with one character"),
 	TEST(str_idx_get_with_7,	"tests indexed string read with 7 characters"),
 	TEST(str_idx_get_with_8,	"tests indexed string read with 8 characters"),
 	TEST(str_idx_get_with_16,	"tests indexed string read with 16 characters"),
-	TEST(str_idx_set_with_1,	"tests indexed string write with 1 character"), 
+	TEST(str_idx_set_with_1,	"tests indexed string write with one character"), 
 	TEST(str_idx_set_with_7,	"tests indexed string write with 7 characters"), 
 	TEST(str_idx_set_with_8,	"tests indexed string write with 8 characters"), 
 	TEST(str_idx_set_with_16,	"tests indexed string write with 16 characters"), 
