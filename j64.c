@@ -27,6 +27,7 @@ j64_t j64_istrn(const char *s, size_t len)
 
 	/* POST */
 	assert(j64_is_istr(j));
+	assert(len <= J64_ISTR_LEN_MAX);
 	assert(j64_istr_len(j) == len);
 	assert(strncmp((const char *)_j64_istr_buf(j), s, len) == 0);
 
@@ -39,6 +40,31 @@ j64_t j64_istr(const char *s)
 	return j64_istrn(s, len);
 }
 
+j64_t j64_bstrn(const char *s, const size_t len)
+{
+	j64_t j = _J64_INITIALIZER;
+	// TODO: check for overflow
+	j.p = malloc(_J64_BSTR_HDR_SIZEOF + len);
+	if (j.p == NULL)
+		return j64_null();
+	_j64_bstr_len_set(j, len);
+	memcpy(_j64_bstr_buf(j), s, len);
+	_j64_prim_tag_set(j, J64_TAG_PRIM_BSTR);
+
+	/* POST */
+	assert(j64_is_bstr(j));
+	assert(j64_bstr_len(j) == len);
+	assert(strncmp((const char *)_j64_bstr_buf(j), s, len) == 0);
+
+	return j;
+}
+
+j64_t j64_bstr(const char *s)
+{
+	size_t len = strlen(s);
+	return j64_bstrn(s, len);
+}
+
 j64_t j64_strn(const char *s, const size_t len)
 {
 	if (len == 0)
@@ -47,26 +73,16 @@ j64_t j64_strn(const char *s, const size_t len)
 	/* PRE */
 	assert(s != NULL);
 
-	j64_t j = {0};
+	j64_t j = _J64_INITIALIZER;
 
 	/*
 	 * Construct immediate string if string fits into 56 bits,
-	 * otherwise allocate and construct a boxed string.
+	 * otherwise construct a boxed string.
 	 */
-	if (len <= J64_ISTR_LEN_MAX) {
-		memcpy(_j64_istr_buf(j), s, len);
-		_j64_istr_len_set(j, len);
-		_j64_prim_tag_set(j, J64_TAG_PRIM_ISTR);
-	} else {
-		j.p = malloc(_J64_BSTR_HDR_SIZEOF + len);
-		if (j.p == NULL)
-			return j64_null();
-
-		struct _j64_bstr_hdr *h = j.p;
-		h->len = len;
-		memcpy(_j64_bstr_buf(j), s, len);
-		_j64_prim_tag_set(j, J64_TAG_PRIM_BSTR);
-	}
+	if (len <= J64_ISTR_LEN_MAX)
+		j = j64_istrn(s, len);
+	else
+		j = j64_bstrn(s, len);
 
 	/* POST */
 	assert(j64_is_str(j));

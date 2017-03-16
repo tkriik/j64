@@ -175,6 +175,8 @@ struct _j64_arr_hdr {
 j64_t	j64_float(double);
 j64_t	j64_istrn(const char *, size_t);
 j64_t	j64_istr(const char *);
+j64_t	j64_bstrn(const char *, size_t);
+j64_t	j64_bstr(const char *);
 j64_t	j64_strn(const char *, size_t);
 j64_t	j64_str(const char *);
 #define j64_estr()		_j64_init(w, J64_SUBTAG_LIT_ESTR)
