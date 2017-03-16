@@ -121,7 +121,7 @@ int mk_istr_with_7(void)
 	return j64_is_istr(j64_istr("1234567"));
 }
 
-int mk_istr_with_8(void)
+int mk_istr_with_7_over(void)
 {
 	return j64_is_istr(j64_istr("12345678"));
 }
@@ -374,7 +374,7 @@ struct test_info tests[] = {
 	TEST(mk_istr_with_0,		"tests immediate string creation with empty string"),
 	TEST(mk_istr_with_1,		"tests immediate string creation with one character"),
 	TEST(mk_istr_with_7,		"tests immediate string creation with 7 characters"),
-	TEST(mk_istr_with_8,		"tests immediate string creation with 8 characters"),
+	TEST(mk_istr_with_7_over,	"tests immediate string creation with over 7 characters"),
 	TEST(mk_str_with_0,		"tests string creation with empty string"),
 	TEST(mk_str_with_1,		"tests string creation with one character"),
 	TEST(mk_str_with_7,		"tests string creation with 7 characters"),
