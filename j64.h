@@ -60,6 +60,11 @@ typedef union {
  *
  * Two bit sequences denote an integer, which are 011 (3) and 111 (7).
  * This way we can get one free extra bit when storing integers (thanks vihtori).
+ *
+ * Storing the primary tag with 3 bits while storing full pointers in the word
+ * at the same time rely on the system memory allocator returning pointers
+ * that are aligned on at least an 8-byte boundary. Otherwise this library
+ * won't function.
  */
 #define _J64_TAG_PRIM_SIZE	3
 #define _J64_TAG_PRIM_MASK	((1 << _J64_TAG_PRIM_SIZE) - 1)
@@ -80,7 +85,6 @@ typedef union {
 
 #define _j64_get_ptr(j)		((_j64_ptr_t)((j).w & ~_J64_TAG_PRIM_MASK))
 
-#define J64_UINT_MAX		0x3fffffffffffffffULL
 #define J64_INT_MIN		(-0x1fffffffffffffffLL - 1)
 #define J64_INT_MAX		0x1fffffffffffffffLL
 
@@ -123,7 +127,7 @@ typedef union {
 #define _J64_SUBTAG_STR_LEN_OFFS _J64_TAG_PRIM_SIZE
 #define _J64_SUBTAG_STR_LEN_SIZE (3 + _J64_SUBTAG_STR_LEN_OFFS)
 #define _J64_SUBTAG_STR_LEN_MASK ((1 << _J64_SUBTAG_STR_LEN_SIZE) - 1)
-#define J64_ISTR_LEN_MAX _J64_SUBTAG_STR_LEN_MASK
+#define J64_ISTR_LEN_MAX	 (sizeof(_j64_word_t) - 1)
 
 #define j64_istr_len(j)							\
     (((j).w & _J64_SUBTAG_STR_LEN_MASK) >> _J64_SUBTAG_STR_LEN_OFFS)
@@ -167,10 +171,11 @@ struct _j64_arr_hdr {
     _j64_init(w, ((_j64_word_t)(x) << _J64_TAG_PRIM_INT_SIZE) | J64_TAG_PRIM_INT0)
 j64_t	j64_float(double);
 j64_t	j64_str(const char *);
+j64_t	j64_strn(const char *, size_t);
 #define j64_estr()		_j64_init(w, J64_SUBTAG_LIT_ESTR)
-j64_t	j64_arr(j64_t *, size_t);
+j64_t	j64_arr(const j64_t *, size_t);
 #define j64_earr()		_j64_init(w, J64_SUBTAG_LIT_EARR)
-j64_t	j64_obj(j64_t *, size_t);
+j64_t	j64_obj(const j64_t *, size_t);
 #define j64_eobj()		_j64_init(w, J64_SUBTAG_LIT_EOBJ)
 
 /* Testing routines. */

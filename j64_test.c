@@ -16,12 +16,12 @@ int sys_word_size(void)
 
 int sys_ptr_size(void)
 {
-	return sizeof(_j64_ptr_t) <= 8;
+	return sizeof(_j64_ptr_t) <= sizeof(_j64_word_t);
 }
 
 int sys_j64_union_size(void)
 {
-	return sizeof(j64_t) == 8;
+	return sizeof(j64_t) == sizeof(_j64_word_t);
 }
 
 #define NMALLOCS	65536

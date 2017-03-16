@@ -17,6 +17,12 @@ j64_t j64_float(double f)
 
 j64_t j64_str(const char *s)
 {
+	size_t len = strlen(s);
+	return j64_strn(s, len);
+}
+
+j64_t j64_strn(const char *s, size_t len)
+{
 	/* PRE */
 	assert(s != NULL);
 
@@ -25,13 +31,12 @@ j64_t j64_str(const char *s)
 		return j64_estr();
 
 	j64_t j = {0};
-	const size_t len = strlen(s);
 
 	/*
 	 * Construct immediate string if string fits into 56 bits,
 	 * otherwise allocate and construct a boxed string.
 	 */
-	if (len < 8) {
+	if (len <= J64_ISTR_LEN_MAX) {
 		memcpy(_j64_istr_buf(j), s, len);
 		_j64_istr_len_set(j, len);
 		_j64_prim_tag_set(j, J64_TAG_PRIM_ISTR);
@@ -102,7 +107,7 @@ size_t j64_str_get(const j64_t j, char *dst, const size_t dst_size)
 
 #define J64_ARR_CNT_MIN 6
 
-j64_t j64_arr(j64_t *js, size_t cnt)
+j64_t j64_arr(const j64_t *js, const size_t cnt)
 {
 	if (cnt == 0)
 		return j64_earr();
