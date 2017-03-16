@@ -215,7 +215,7 @@ int str_len_with_16(void)
 		if (j64_str_get_at(j, i) != s[i])			\
 			return 0;					\
 	}								\
-	return 1;
+	return 1
 
 int str_idx_get_with_1(void)
 {
@@ -246,7 +246,7 @@ int str_idx_get_with_16(void)
 		if (j64_str_get_at(j, i) != d[i])			\
 			return 0;					\
 	}								\
-	return 1;
+	return 1
 
 
 int str_idx_set_with_1(void)
@@ -274,7 +274,7 @@ int str_idx_set_with_16(void)
 	j64_t j = j64_str(_s);						\
 	char b[_n + 1] = _s;						\
 	size_t len = j64_str_get(j, b, sizeof(b));			\
-	return len == _n && strcmp(s, b) == 0;
+	return len == _n && strcmp(s, b) == 0
 
 int str_eq_with_0(void)
 {
