@@ -180,6 +180,21 @@ j64_t j64_arr(const j64_t *js, const size_t cnt)
 	return j;
 }
 
+void j64_free(j64_t j)
+{
+	switch (j64_prim_tag(j)) {
+	case J64_TAG_PRIM_BSTR:
+		free(_j64_bstr_hdr(j));
+		break;
+	case J64_TAG_PRIM_ARR:
+		free(_j64_arr_hdr(j));
+		break;
+	case J64_TAG_PRIM_OBJ:
+		// TODO: _j64_obj_hdr
+		break;
+	}
+}
+
 void j64_dbg(j64_t j)
 {
 	struct _j64_bstr_hdr *hdr;

@@ -227,9 +227,12 @@ j64_t	j64_obj(const j64_t *, size_t);
     (j64_is_bstr(j) ? _j64_bstr_buf(j) : (j64_is_istr(j) ? _j64_istr_buf(j) : NULL))
 #define j64_str_len(j)							\
     (j64_is_bstr(j) ? j64_bstr_len(j) : (j64_is_istr(j) ? j64_istr_len(j) : 0))
-size_t j64_str_get(j64_t, char *, size_t);
+size_t	j64_str_get(j64_t, char *, size_t);
 
 #define j64_arr_get_at(j, i)	(_j64_arr_buf(j)[i])
+
+/* Free */
+void	j64_free(j64_t);
 
 /* Debug */
 void	j64_dbg(j64_t);
