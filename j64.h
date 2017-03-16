@@ -144,7 +144,7 @@ struct _j64_bstr_hdr {
 };
 
 #define _j64_bstr_hdr(j)	((struct _j64_bstr_hdr *)_j64_get_ptr(j))
-#define _J64_BSTR_HDR_SIZEOF	(sizeof(struct _j64_bstr_hdr) - 1)
+#define _J64_BSTR_HDR_SIZEOF	(sizeof(_j64_word_t))
 #define j64_bstr_len(j)		(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len)
 #define _j64_bstr_len_set(j, n)	(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->len = (n))
 #define _j64_bstr_buf(j)	(&(((struct _j64_bstr_hdr *)_j64_get_ptr(j))->buf))
@@ -156,7 +156,7 @@ struct _j64_arr_hdr {
 	_j64_byte_t buf; /* used only for addressing */
 };
 
-#define _J64_ARR_HDR_SIZEOF	(sizeof(struct _j64_arr_hdr) - 1)
+#define _J64_ARR_HDR_SIZEOF	(sizeof(_j64_word_t) + sizeof(_j64_word_t))
 
 #define _j64_arr_hdr(j)		((struct _j64_arr_hdr *)_j64_get_ptr(j))
 #define j64_arr_cnt(j)		(((struct _j64_arr_hdr *)_j64_get_ptr(j))->cnt)
