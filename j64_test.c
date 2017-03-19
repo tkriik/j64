@@ -277,8 +277,8 @@ int str_idx_set_with_16(void)
 	const char *s = _s;						\
 	j64_t j = j64_str(_s);						\
 	char b[_n + 1] = _s;						\
-	j64_ ##_t ## _get(j, b, sizeof(b));				\
-	res = strcmp(s, b) == 0;					\
+	size_t len = j64_ ##_t ## _get(j, b, sizeof(b));		\
+	res = len == _n && strcmp(s, b) == 0;				\
 	j64_free(j);							\
 	return res
 
