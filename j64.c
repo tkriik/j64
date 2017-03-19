@@ -240,7 +240,7 @@ void j64_dbg(j64_t j)
 		break;
 	case J64_TAG_PRIM_BSTR:
 		hdr = _j64_get_ptr(j);
-		fprintf(stderr, "bstr (%llu): %p, %s ", hdr->len, (void *)hdr, &hdr->buf);
+		fprintf(stderr, "bstr (%zu): %p, %s ", hdr->len, (void *)hdr, &hdr->buf);
 		break;
 	case J64_TAG_PRIM_ARR:
 		fprintf(stderr, "arr: %p", _j64_get_ptr(j));

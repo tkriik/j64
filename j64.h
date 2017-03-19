@@ -146,24 +146,24 @@ typedef union {
 
 /* Boxed string memory header. */
 struct _j64_bstr_hdr {
-	_j64_word_t len;
+	size_t len;
 	_j64_byte_t buf; /* used only for addressing */
 };
 
 #define _j64_bstr_hdr(j)	((struct _j64_bstr_hdr *)_j64_get_ptr(j))
-#define _J64_BSTR_HDR_SIZEOF	(sizeof(_j64_word_t))
+#define _J64_BSTR_HDR_SIZEOF	(sizeof(size_t))
 #define j64_bstr_len(j)		(_j64_bstr_hdr(j)->len)
 #define _j64_bstr_len_set(j, n)	(_j64_bstr_hdr(j)->len = (n))
 #define _j64_bstr_buf(j)	(&(_j64_bstr_hdr(j)->buf))
 
 /* Boxed array memory header. */
 struct _j64_arr_hdr {
-	_j64_word_t len;
-	_j64_word_t cap;
+	size_t len;
+	size_t cap;
 	_j64_byte_t buf; /* used only for addressing */
 };
 
-#define _J64_ARR_HDR_SIZEOF	(sizeof(_j64_word_t) + sizeof(_j64_word_t))
+#define _J64_ARR_HDR_SIZEOF	(sizeof(size_t) + sizeof(size_t))
 
 #define _j64_arr_hdr(j)		((struct _j64_arr_hdr *)_j64_get_ptr(j))
 #define j64_arr_len(j)		(_j64_arr_hdr(j)->len)
