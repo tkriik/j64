@@ -86,8 +86,6 @@ j64_t j64_strn(const char *s, const size_t len)
 
 	/* POST */
 	assert(j64_is_str(j));
-	assert(j64_str_len(j) == len);
-	assert(strncmp((const char *)_j64_str_buf(j), s, len) == 0);
 
 	return j;
 }
@@ -100,48 +98,42 @@ j64_t j64_str(const char *s)
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-size_t j64_str_get(const j64_t j, char *dst, const size_t dst_size)
+size_t j64_istr_get(j64_t j, char *dst, const size_t dst_len)
 {
 	/* PRE */
-	assert(j64_is_str(j));
+	assert(j64_is_istr(j));
 	assert(dst != NULL);
 
-	if (dst_size == 0)
+	if (dst_len == 0)
 		return 0;
 
-	size_t dst_len = dst_size - 1;
-
-	const _j64_byte_t *src;
-	size_t src_len;
-	switch (j64_prim_tag(j)) {
-	case J64_TAG_PRIM_LIT:
-		switch (j64_subtag_lit(j)) {
-		case J64_SUBTAG_LIT_ESTR:
-			*dst = '\0';
-			return 0;
-		default:
-			return 0;
-		}
-	case J64_TAG_PRIM_ISTR:
-		src = _j64_istr_buf(j);
-		src_len = j64_istr_len(j);
-		break;
-	case J64_TAG_PRIM_BSTR:
-		src = _j64_bstr_buf(j);
-		src_len = j64_bstr_len(j);
-		break;
-	default:
-		return 0;
-	}
-
-	const size_t min_len = MIN(src_len, dst_len);
-	memcpy(dst, src, min_len);
-	dst[min_len] = '\0';
+	size_t ncopy = MIN(j64_istr_len(j), dst_len - 1);
+	memcpy(dst, _j64_istr_buf(j), ncopy);
+	dst[ncopy] = '\0';
 
 	/* POST */
-	assert(strncmp((const char*)_j64_str_buf(j), dst, min_len) == 0);
+	assert(strncmp((const char *)_j64_istr_buf(j), dst, ncopy) == 0);
 
-	return min_len;
+	return ncopy;
+}
+
+size_t j64_bstr_get(j64_t j, char *dst, const size_t dst_len)
+{
+	/* PRE */
+	assert(j64_is_bstr(j));
+	assert(dst != NULL);
+
+	if (dst_len == 0)
+		return 0;
+
+	size_t ncopy = MIN(j64_bstr_len(j), dst_len - 1);
+	memcpy(dst, _j64_bstr_buf(j), ncopy);
+	dst[ncopy] = '\0';
+
+	/* POST */
+	assert(strncmp((const char *)_j64_bstr_buf(j), dst, ncopy) == 0);
+
+	return ncopy;
 }
 
 #define J64_ARR_CNT_MIN 6

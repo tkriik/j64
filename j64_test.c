@@ -183,67 +183,62 @@ int int_neq_with_max_over(void)
 	return j64_int_get(j64_int(J64_INT_MAX + 1)) != J64_INT_MAX + 1;
 }
 
-int str_len_with_0(void)
-{
-	return j64_str_len(j64_str("")) == 0;
-}
-
 int str_len_with_1(void)
 {
-	return j64_str_len(j64_str("1")) == 1;
+	return j64_istr_len(j64_str("1")) == 1;
 }
 
 int str_len_with_7(void)
 {
-	return j64_str_len(j64_str("1234567")) == 7;
+	return j64_istr_len(j64_str("1234567")) == 7;
 }
 
 int str_len_with_8(void)
 {
-	return j64_str_len(j64_str("12345678")) == 8;
+	return j64_bstr_len(j64_str("12345678")) == 8;
 }
 
 int str_len_with_16(void)
 {
-	return j64_str_len(j64_str("YELLOW SUBMARINE")) == 16;
+	return j64_bstr_len(j64_str("YELLOW SUBMARINE")) == 16;
 }
 
-#define STR_IDX_GET_TEST_TEMPLATE(_s)					\
+#define STR_IDX_GET_TEST_TEMPLATE(_s, _strlen, _strgetat)		\
 	const char *s = _s;						\
 	j64_t j = j64_str(_s);						\
-	for (size_t i = 0; i < j64_str_len(j); i++) {			\
-		if (j64_str_get_at(j, i) != s[i])			\
+	for (size_t i = 0; i < _strlen(j); i++) {			\
+		if (_strgetat(j, i) != s[i])				\
 			return 0;					\
 	}								\
 	return 1
 
 int str_idx_get_with_1(void)
 {
-	STR_IDX_GET_TEST_TEMPLATE("1");
+	STR_IDX_GET_TEST_TEMPLATE("1", j64_istr_len, j64_istr_get_at);
 }
 
 int str_idx_get_with_7(void)
 {
-	STR_IDX_GET_TEST_TEMPLATE("1234567");
+	STR_IDX_GET_TEST_TEMPLATE("1234567", j64_istr_len, j64_istr_get_at);
 }
 
 int str_idx_get_with_8(void)
 {
-	STR_IDX_GET_TEST_TEMPLATE("12345678");
+	STR_IDX_GET_TEST_TEMPLATE("12345678", j64_bstr_len, j64_bstr_get_at);
 }
 
 int str_idx_get_with_16(void)
 {
-	STR_IDX_GET_TEST_TEMPLATE("YELLOW SUBMARINE");
+	STR_IDX_GET_TEST_TEMPLATE("YELLOW SUBMARINE", j64_bstr_len, j64_bstr_get_at);
 }
 
-#define STR_IDX_SET_TEST_TEMPLATE(_s, _d)				\
+#define STR_IDX_SET_TEST_TEMPLATE(_s, _d, _t)				\
 	const char *d = _s;						\
 	j64_t j = j64_str(_s);						\
-	for (size_t i = 0; i < j64_str_len(j); i++)			\
-		j64_str_set_at(j, i, d[i]);				\
-	for (size_t i = 0; i < j64_str_len(j); i++) {			\
-		if (j64_str_get_at(j, i) != d[i])			\
+	for (size_t i = 0; i < j64_ ## _t ## _len(j); i++)		\
+		j64_ ## _t ## _set_at(j, i, d[i]);			\
+	for (size_t i = 0; i < j64_ ## _t ## _len(j); i++) {		\
+		if (j64_ ## _t ## _get_at(j, i) != d[i])		\
 			return 0;					\
 	}								\
 	return 1
@@ -251,54 +246,49 @@ int str_idx_get_with_16(void)
 
 int str_idx_set_with_1(void)
 {
-	STR_IDX_SET_TEST_TEMPLATE("1", "A");
+	STR_IDX_SET_TEST_TEMPLATE("1", "A", istr);
 }
 
 int str_idx_set_with_7(void)
 {
-	STR_IDX_SET_TEST_TEMPLATE("1234567", "ABCDEFG");
+	STR_IDX_SET_TEST_TEMPLATE("1234567", "ABCDEFG", istr);
 }
 
 int str_idx_set_with_8(void)
 {
-	STR_IDX_SET_TEST_TEMPLATE("12345678", "ABCDEFGH");
+	STR_IDX_SET_TEST_TEMPLATE("12345678", "ABCDEFGH", bstr);
 }
 
 int str_idx_set_with_16(void)
 {
-	STR_IDX_SET_TEST_TEMPLATE("YELLOW SUBMARINE", "0123456789abcdef");
+	STR_IDX_SET_TEST_TEMPLATE("YELLOW SUBMARINE", "0123456789abcdef", bstr);
 }
 
-#define STR_EQ_TEST_TEMPLATE(_s, _n)					\
+#define STR_EQ_TEST_TEMPLATE(_s, _n, _t)				\
 	const char *s = _s;						\
 	j64_t j = j64_str(_s);						\
 	char b[_n + 1] = _s;						\
-	size_t len = j64_str_get(j, b, sizeof(b));			\
+	size_t len = j64_ ##_t ## _get(j, b, sizeof(b));		\
 	return len == _n && strcmp(s, b) == 0
-
-int str_eq_with_0(void)
-{
-	STR_EQ_TEST_TEMPLATE("", 0);
-}
 
 int str_eq_with_1(void)
 {
-	STR_EQ_TEST_TEMPLATE("1", 1);
+	STR_EQ_TEST_TEMPLATE("1", 1, istr);
 }
 
 int str_eq_with_7(void)
 {
-	STR_EQ_TEST_TEMPLATE("1234567", 7);
+	STR_EQ_TEST_TEMPLATE("1234567", 7, istr);
 }
 
 int str_eq_with_8(void)
 {
-	STR_EQ_TEST_TEMPLATE("12345678", 8);
+	STR_EQ_TEST_TEMPLATE("12345678", 8, bstr);
 }
 
 int str_eq_with_16(void)
 {
-	STR_EQ_TEST_TEMPLATE("YELLOW SUBMARINE", 16);
+	STR_EQ_TEST_TEMPLATE("YELLOW SUBMARINE", 16, bstr);
 }
 
 struct test_info {
@@ -352,7 +342,6 @@ struct test_info tests[] = {
 	TEST(int_neq_with_min_under,	"tests signed integer unequality with value under minimum"),
 	TEST(int_neq_with_max_over,	"tests signed integer unequality with value over maximum"),
 
-	TEST(str_len_with_0,		"tests string length with empty string"),
 	TEST(str_len_with_1,		"tests string length with one character"),
 	TEST(str_len_with_7,		"tests string length with 7 characters"),
 	TEST(str_len_with_8,		"tests string length with 8 characters"),
@@ -365,7 +354,6 @@ struct test_info tests[] = {
 	TEST(str_idx_set_with_7,	"tests indexed string write with 7 characters"), 
 	TEST(str_idx_set_with_8,	"tests indexed string write with 8 characters"), 
 	TEST(str_idx_set_with_16,	"tests indexed string write with 16 characters"), 
-	TEST(str_eq_with_0,		"tests string equality with empty string"),
 	TEST(str_eq_with_1,		"tests string equality with one character"),
 	TEST(str_eq_with_7,		"tests string equality with 7 characters"),
 	TEST(str_eq_with_8,		"tests string equality with 8 characters"),

@@ -217,17 +217,11 @@ j64_t	j64_obj(const j64_t *, size_t);
 
 #define j64_istr_get_at(j, i)		(_j64_istr_buf(j)[i])
 #define j64_istr_set_at(j, i, x)	(_j64_istr_buf(j)[i] = (x))
+size_t	j64_istr_get(j64_t, char *, size_t);
+
 #define j64_bstr_get_at(j, i)		((_j64_bstr_buf(j))[i])
 #define j64_bstr_set_at(j, i, x)	((_j64_bstr_buf(j))[i] = (x))
-#define j64_str_get_at(j, i)						\
-    (j64_is_bstr(j) ? j64_bstr_get_at(j, i) : j64_istr_get_at(j, i))
-#define j64_str_set_at(j, i, x)						\
-    (j64_is_bstr(j) ? j64_bstr_set_at(j, i, x) : j64_istr_set_at(j, i, x))
-#define _j64_str_buf(j)							\
-    (j64_is_bstr(j) ? _j64_bstr_buf(j) : (j64_is_istr(j) ? _j64_istr_buf(j) : NULL))
-#define j64_str_len(j)							\
-    (j64_is_bstr(j) ? j64_bstr_len(j) : (j64_is_istr(j) ? j64_istr_len(j) : 0))
-size_t	j64_str_get(j64_t, char *, size_t);
+size_t	j64_bstr_get(j64_t, char *, size_t);
 
 #define j64_arr_get_at(j, i)	(_j64_arr_buf(j)[i])
 
