@@ -22,7 +22,10 @@ A boxed value contains a pointer to the heap, which can be:
 
 # Why
 
-For fun. You should **not** use this in production.
+For fun. I got the idea when studying how
+[Erlang terms](https://github.com/erlang/otp/blob/maint/erts/emulator/beam/erl_term.h)
+were implemented.
+You should **not** use this in production.
 
 # How
 

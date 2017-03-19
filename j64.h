@@ -90,6 +90,13 @@ typedef union {
 #define J64_INT_MIN		(-0x1fffffffffffffffLL - 1)
 #define J64_INT_MAX		0x1fffffffffffffffLL
 
+#define j64_is_immed(j)							\
+	(j64_prim_tag(j) <= J64_TAG_PRIM_INT0 ||			\
+	 j64_prim_tag(j) == J64_TAG_PRIM_INT1)
+#define j64_is_boxed(j)							\
+	(j64_prim_tag(j) >= J64_TAG_PRIM_BSTR &&			\
+	 j64_prim_tag(j) <= J64_TAG_PRIM_OBJ)
+
 /*
  * 3 bits after a primary tag of J64_TAG_PRIM_LIT form a literal tag,
  * which denotes the type of a literal value stored. A literal value
@@ -151,7 +158,7 @@ struct _j64_bstr_hdr {
 
 /* Boxed array memory header. */
 struct _j64_arr_hdr {
-	_j64_word_t cnt;
+	_j64_word_t len;
 	_j64_word_t cap;
 	_j64_byte_t buf; /* used only for addressing */
 };
@@ -159,7 +166,7 @@ struct _j64_arr_hdr {
 #define _J64_ARR_HDR_SIZEOF	(sizeof(_j64_word_t) + sizeof(_j64_word_t))
 
 #define _j64_arr_hdr(j)		((struct _j64_arr_hdr *)_j64_get_ptr(j))
-#define j64_arr_cnt(j)		(_j64_arr_hdr(j)->cnt)
+#define j64_arr_len(j)		(_j64_arr_hdr(j)->len)
 #define j64_arr_cap(j)		(_j64_arr_hdr(j)->cap)
 #define _j64_arr_buf(j)		((j64_t *)&(_j64_arr_hdr(j)->buf))
 
@@ -212,18 +219,22 @@ j64_t	j64_obj(const j64_t *, size_t);
 #define j64_is_eobj(j)		(j64_subtag_lit(j) == J64_SUBTAG_LIT_EOBJ)
 #define j64_is_obj(j)		(j64_is_bobj(j) || j64_is_eobj(j))
 
+/* Comparison routines. */
+int	j64_eq(j64_t, j64_t);
+
 /* Access routines (no type checking). */
 #define j64_int_get(j)		((j).i >> _J64_TAG_PRIM_INT_SIZE)
 
-#define j64_istr_get_at(j, i)		(_j64_istr_buf(j)[i])
-#define j64_istr_set_at(j, i, x)	(_j64_istr_buf(j)[i] = (x))
+#define j64_istr_get_at(j, i)	(_j64_istr_buf(j)[i])
+#define j64_istr_set_at(j, i, x) (_j64_istr_buf(j)[i] = (x))
 size_t	j64_istr_get(j64_t, char *, size_t);
 
-#define j64_bstr_get_at(j, i)		((_j64_bstr_buf(j))[i])
-#define j64_bstr_set_at(j, i, x)	((_j64_bstr_buf(j))[i] = (x))
+#define j64_bstr_get_at(j, i)	((_j64_bstr_buf(j))[i])
+#define j64_bstr_set_at(j, i, x) (_j64_bstr_buf(j)[i] = (x))
 size_t	j64_bstr_get(j64_t, char *, size_t);
 
 #define j64_arr_get_at(j, i)	(_j64_arr_buf(j)[i])
+#define j64_arr_set_at(j, i, x)	(_j64_arr_buf(j)[i] = (x))
 
 /* Free */
 void	j64_free(j64_t);

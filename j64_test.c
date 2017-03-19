@@ -203,45 +203,53 @@ int str_len_with_16(void)
 	return j64_bstr_len(j64_str("YELLOW SUBMARINE")) == 16;
 }
 
-#define STR_IDX_GET_TEST_TEMPLATE(_s, _strlen, _strgetat)		\
+#define STR_IDX_GET_TEST_TEMPLATE(_s, _t)				\
+	int res = 1;							\
 	const char *s = _s;						\
 	j64_t j = j64_str(_s);						\
-	for (size_t i = 0; i < _strlen(j); i++) {			\
-		if (_strgetat(j, i) != s[i])				\
-			return 0;					\
+	for (size_t i = 0; i < j64_ ## _t ## _len(j); i++) {		\
+		if (j64_ ## _t ##_get_at(j, i) != s[i]) {		\
+			res = 0;					\
+			break;						\
+		}							\
 	}								\
-	return 1
+	j64_free(j);							\
+	return res
 
 int str_idx_get_with_1(void)
 {
-	STR_IDX_GET_TEST_TEMPLATE("1", j64_istr_len, j64_istr_get_at);
+	STR_IDX_GET_TEST_TEMPLATE("1", istr);
 }
 
 int str_idx_get_with_7(void)
 {
-	STR_IDX_GET_TEST_TEMPLATE("1234567", j64_istr_len, j64_istr_get_at);
+	STR_IDX_GET_TEST_TEMPLATE("1234567", istr);
 }
 
 int str_idx_get_with_8(void)
 {
-	STR_IDX_GET_TEST_TEMPLATE("12345678", j64_bstr_len, j64_bstr_get_at);
+	STR_IDX_GET_TEST_TEMPLATE("12345678", bstr);
 }
 
 int str_idx_get_with_16(void)
 {
-	STR_IDX_GET_TEST_TEMPLATE("YELLOW SUBMARINE", j64_bstr_len, j64_bstr_get_at);
+	STR_IDX_GET_TEST_TEMPLATE("YELLOW SUBMARINE", bstr);
 }
 
 #define STR_IDX_SET_TEST_TEMPLATE(_s, _d, _t)				\
+	int res = 1;							\
 	const char *d = _s;						\
 	j64_t j = j64_str(_s);						\
 	for (size_t i = 0; i < j64_ ## _t ## _len(j); i++)		\
 		j64_ ## _t ## _set_at(j, i, d[i]);			\
 	for (size_t i = 0; i < j64_ ## _t ## _len(j); i++) {		\
-		if (j64_ ## _t ## _get_at(j, i) != d[i])		\
-			return 0;					\
+		if (j64_ ## _t ## _get_at(j, i) != d[i]) {		\
+			res = 0;					\
+			break;						\
+		}							\
 	}								\
-	return 1
+	j64_free(j);							\
+	return res
 
 
 int str_idx_set_with_1(void)
@@ -265,11 +273,14 @@ int str_idx_set_with_16(void)
 }
 
 #define STR_EQ_TEST_TEMPLATE(_s, _n, _t)				\
+	int res = 0;							\
 	const char *s = _s;						\
 	j64_t j = j64_str(_s);						\
 	char b[_n + 1] = _s;						\
-	size_t len = j64_ ##_t ## _get(j, b, sizeof(b));		\
-	return len == _n && strcmp(s, b) == 0
+	j64_ ##_t ## _get(j, b, sizeof(b));				\
+	res = strcmp(s, b) == 0;					\
+	j64_free(j);							\
+	return res
 
 int str_eq_with_1(void)
 {
@@ -289,6 +300,60 @@ int str_eq_with_8(void)
 int str_eq_with_16(void)
 {
 	STR_EQ_TEST_TEMPLATE("YELLOW SUBMARINE", 16, bstr);
+}
+
+#define ARR_LEN_TEST_TEMPLATE(_n)					\
+	int res = 0;							\
+	j64_t js[_n];							\
+	for (size_t i = 0; i < _n; i++)					\
+		js[i] = j64_null();					\
+	j64_t j = j64_arr(js, _n);					\
+	res = j64_arr_len(j) == _n;					\
+	j64_free(j);							\
+	return res
+
+int arr_len_with_1(void)
+{
+	ARR_LEN_TEST_TEMPLATE(1);
+}
+
+int arr_len_with_8(void)
+{
+	ARR_LEN_TEST_TEMPLATE(8);
+}
+
+int arr_len_with_64(void)
+{
+	ARR_LEN_TEST_TEMPLATE(64);
+}
+
+#define ARR_IDX_GET_TEMPLATE(_n)					\
+	int res = 1;							\
+	j64_t js[_n];							\
+	for (size_t i = 0; i < _n; i++)					\
+		js[i] = j64_int(i);					\
+	j64_t j = j64_arr(js, _n);					\
+	for (size_t i = 0; i < _n; i++)					\
+		if (!(j64_eq(j64_arr_get_at(j, i), j64_int(i)))) {	\
+			res = 0;					\
+			break;						\
+		}							\
+	j64_free(j);							\
+	return res
+
+int arr_idx_get_with_1(void)
+{
+	ARR_IDX_GET_TEMPLATE(1);
+}
+
+int arr_idx_get_with_8(void)
+{
+	ARR_IDX_GET_TEMPLATE(8);
+}
+
+int arr_idx_get_with_64(void)
+{
+	ARR_IDX_GET_TEMPLATE(64);
 }
 
 struct test_info {
@@ -357,7 +422,14 @@ struct test_info tests[] = {
 	TEST(str_eq_with_1,		"tests string equality with one character"),
 	TEST(str_eq_with_7,		"tests string equality with 7 characters"),
 	TEST(str_eq_with_8,		"tests string equality with 8 characters"),
-	TEST(str_eq_with_16,		"tests string equality with 16 characters")
+	TEST(str_eq_with_16,		"tests string equality with 16 characters"),
+
+	TEST(arr_len_with_1,		"tests array length with one element"),
+	TEST(arr_len_with_8,		"tests array length with 8 elements"),
+	TEST(arr_len_with_64,		"tests array length with 64 elements"),
+	TEST(arr_idx_get_with_1,	"tests indexed array read with 1 element"),
+	TEST(arr_idx_get_with_8,	"tests indexed array read with 8 elements"),
+	TEST(arr_idx_get_with_64,	"tests indexed array read with 64 elements")
 };
 
 #define NTESTS (sizeof(tests) / sizeof(tests[0]))

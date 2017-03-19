@@ -138,9 +138,9 @@ size_t j64_bstr_get(j64_t j, char *dst, const size_t dst_len)
 
 #define J64_ARR_CNT_MIN 6
 
-j64_t j64_arr(const j64_t *js, const size_t cnt)
+j64_t j64_arr(const j64_t *js, const size_t len)
 {
-	if (cnt == 0)
+	if (len == 0)
 		return j64_earr();
 
 	/* PRE */
@@ -148,17 +148,17 @@ j64_t j64_arr(const j64_t *js, const size_t cnt)
 
 	j64_t j;
 	// TODO: more sane initial capacity
-	size_t cap = cnt + (cnt / 2);
+	size_t cap = len + (len / 2);
 	// TODO: check for overflow
 	j.p = malloc(_J64_ARR_HDR_SIZEOF + cap * sizeof(j));
 	if (j.p == NULL)
 		return j64_null();
 
 	struct _j64_arr_hdr *hdr = j.p;
-	hdr->cnt = cnt;
+	hdr->len = len;
 	hdr->cap = cap;
 	j64_t *elems = _j64_arr_buf(j);
-	for (size_t i = 0; i < cnt; i++)
+	for (size_t i = 0; i < len; i++)
 		elems[i] = js[i];
 
 	_j64_prim_tag_set(j, J64_TAG_PRIM_ARR);
@@ -166,10 +166,16 @@ j64_t j64_arr(const j64_t *js, const size_t cnt)
 	/* POST */
 	assert(j.p != NULL);
 	assert(j64_is_barr(j));
-	assert(j64_arr_cnt(j) == cnt);
+	assert(j64_arr_len(j) == len);
 	assert(j64_arr_cap(j) == cap);
 
 	return j;
+}
+
+int j64_eq(j64_t j0, j64_t j1)
+{
+	// TODO: boxed comparison
+	return j0.w == j1.w;
 }
 
 void j64_free(j64_t j)
