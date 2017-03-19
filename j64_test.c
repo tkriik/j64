@@ -29,7 +29,7 @@ int sys_j64_union_size(void)
 
 int sys_malloc_alignment(void)
 {
-	int rc = 1;
+	int res = 1;
 
 	union {
 		_j64_ptr_t  p;
@@ -40,11 +40,11 @@ int sys_malloc_alignment(void)
 	for (size_t i = 0; i < NMALLOCS; i++) {
 		us[i].p = malloc(MALLOC_SIZE);
 		if (us[i].p == NULL) {
-			rc = 0;
+			res = 0;
 			goto free;
 		}
 		if (us[i].w != (us[i].w & ~_J64_TAG_PRIM_MASK)) {
-			rc = 0;
+			res = 0;
 			goto free;
 		}
 		nmallocs++;
@@ -54,7 +54,7 @@ free:
 	for (size_t i = 0; i < nmallocs; i++)
 		free(us[i].p);
 
-	return rc;
+	return res;
 }
 
 /*
@@ -356,6 +356,37 @@ int arr_idx_get_with_64(void)
 	ARR_IDX_GET_TEMPLATE(64);
 }
 
+#define ARR_IDX_SET_TEMPLATE(_n)					\
+	int res = 1;							\
+	j64_t js[_n];							\
+	for (size_t i = 0; i < _n; i++)					\
+		js[i] = j64_null();					\
+	j64_t j = j64_arr(js, _n);					\
+	for (size_t i = 0; i < _n; i++) {				\
+		j64_arr_set_at(j, i, j64_int(i));			\
+		if (!(j64_eq(j64_arr_get_at(j, i), j64_int(i)))) {	\
+			res = 0;					\
+			break;						\
+		}							\
+	}								\
+	j64_free(j);							\
+	return res
+
+int arr_idx_set_with_1(void)
+{
+	ARR_IDX_SET_TEMPLATE(1);
+}
+
+int arr_idx_set_with_8(void)
+{
+	ARR_IDX_SET_TEMPLATE(8);
+}
+
+int arr_idx_set_with_64(void)
+{
+	ARR_IDX_SET_TEMPLATE(64);
+}
+
 struct test_info {
 	const char *name;
 	const char *descr;
@@ -368,9 +399,7 @@ int run_test(struct test_info *i)
 {
 	int res = i->fn();
 
-	if (res)
-		fprintf(stderr, "%s: ok\n", i->name);
-	else
+	if (!res)
 		fprintf(stderr, "%s: FAIL (%s)\n", i->name, i->descr);
 
 	return res;
@@ -429,7 +458,10 @@ struct test_info tests[] = {
 	TEST(arr_len_with_64,		"tests array length with 64 elements"),
 	TEST(arr_idx_get_with_1,	"tests indexed array read with 1 element"),
 	TEST(arr_idx_get_with_8,	"tests indexed array read with 8 elements"),
-	TEST(arr_idx_get_with_64,	"tests indexed array read with 64 elements")
+	TEST(arr_idx_get_with_64,	"tests indexed array read with 64 elements"),
+	TEST(arr_idx_set_with_1,	"tests indexed array write with one element"),
+	TEST(arr_idx_set_with_8,	"tests indexed array write with 8 elements"),
+	TEST(arr_idx_set_with_64,	"tests indexed array write with 64 elements")
 };
 
 #define NTESTS (sizeof(tests) / sizeof(tests[0]))
@@ -445,13 +477,11 @@ int main(void)
 			nfail++;
 	}
 
-	fprintf(stderr,
-	    "Success: %d\n"
-	    "Fail:    %d\n",
-	    nsuccess, nfail);
-
-	if (nfail == 0)
+	if (nsuccess == NTESTS) {
+		fprintf(stderr, "All %lu tests passed!\n", NTESTS);
 		return EXIT_SUCCESS;
-	else
+	} else {
+		fprintf(stderr, "%d out of %lu tests failed.\n", nfail, NTESTS);
 		return EXIT_FAILURE;
+	}
 }
