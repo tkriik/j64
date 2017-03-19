@@ -136,12 +136,29 @@ int mk_arr_with_0(void)
 	return j64_is_earr(j64_arr(NULL, 0));
 }
 
+#define MK_ARR_TEST_TEMPLATE(_n)					\
+	int res = 0;							\
+	j64_t js[_n];							\
+	for (size_t i = 0; i < _n; i++)					\
+		js[i] = j64_null();					\
+	j64_t j = j64_arr(js, _n);					\
+	res = j64_is_barr(j);						\
+	j64_free(j);							\
+	return res
+
 int mk_arr_with_1(void)
 {
-	j64_t js[1];
-	js[0] = j64_null();
-	j64_t j = j64_arr(js, 1);
-	return j64_is_barr(j) && j64_is_null(j64_arr_get_at(j, 0));
+	MK_ARR_TEST_TEMPLATE(1);
+}
+
+int mk_arr_with_8(void)
+{
+	MK_ARR_TEST_TEMPLATE(8);
+}
+
+int mk_arr_with_64(void)
+{
+	MK_ARR_TEST_TEMPLATE(64);
 }
 
 /*
@@ -427,6 +444,8 @@ struct test_info tests[] = {
 	TEST(mk_str_with_16,		"tests string creation with 16 characters"),
 	TEST(mk_arr_with_0,		"tests array creation with zero elements"),
 	TEST(mk_arr_with_1,		"tests array creation with one element"),
+	TEST(mk_arr_with_8,		"tests array creation with 8 elements"),
+	TEST(mk_arr_with_64,		"tests array creation with 64 elements"),
 
 	TEST(int_eq_with_zero,		"tests signed integer equality with zero"),
 	TEST(int_eq_with_one_minus,	"tests signed integer equality with minus one"),
