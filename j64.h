@@ -90,13 +90,6 @@ typedef union {
 #define J64_INT_MIN		(-0x1fffffffffffffffLL - 1)
 #define J64_INT_MAX		0x1fffffffffffffffLL
 
-#define j64_is_immed(j)							\
-	(j64_prim_tag(j) <= J64_TAG_PRIM_INT0 ||			\
-	 j64_prim_tag(j) == J64_TAG_PRIM_INT1)
-#define j64_is_boxed(j)							\
-	(j64_prim_tag(j) >= J64_TAG_PRIM_BSTR &&			\
-	 j64_prim_tag(j) <= J64_TAG_PRIM_OBJ)
-
 /*
  * 3 bits after a primary tag of J64_TAG_PRIM_LIT form a literal tag,
  * which denotes the type of a literal value stored. A literal value
