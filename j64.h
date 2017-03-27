@@ -163,6 +163,20 @@ struct _j64_arr_hdr {
 #define j64_arr_cap(j)		(_j64_arr_hdr(j)->cap)
 #define _j64_arr_buf(j)		(&(_j64_arr_hdr(j)->buf))
 
+/* Boxed object structures. */
+struct _j64_obj_kv {
+	j64_t k, v;
+};
+
+struct _j64_obj_hdr {
+	size_t	cnt;
+	size_t	cap;
+	struct _j64_obj_kv kvs; /* used only for addressing */
+};
+
+#define _j64_obj_hdr(j)		((struct _j64_obj_hdr *)_j64_get_ptr(j))
+#define _J64_OBJ_HDR_SIZEOF	(offsetof(struct _j64_obj_hdr, kvs))
+
 /* Constructor routines. */
 #define _j64_init(t, x)		((j64_t){ .t = (x) })
 
