@@ -1,7 +1,7 @@
 #ifndef _J64_H_
 #define _J64_H_
 
-#ifndef J64_DEBUG
+#ifdef J64_DEBUG
 #include <assert.h>
 #define j64_assert(x) assert(x)
 #else
