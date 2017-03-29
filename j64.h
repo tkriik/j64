@@ -140,28 +140,25 @@ typedef union {
 /* Boxed string memory header. */
 struct _j64_bstr_hdr {
 	size_t		len;
-	_j64_byte_t	buf; /* used only for addressing */
+	_j64_byte_t	buf[];
 };
 
 #define _j64_bstr_hdr(j)	((struct _j64_bstr_hdr *)_j64_get_ptr(j))
-#define _J64_BSTR_HDR_SIZEOF	(offsetof(struct _j64_bstr_hdr, buf))
 #define j64_bstr_len(j)		(_j64_bstr_hdr(j)->len)
 #define _j64_bstr_len_set(j, n)	(_j64_bstr_hdr(j)->len = (n))
-#define _j64_bstr_buf(j)	(&(_j64_bstr_hdr(j)->buf))
+#define _j64_bstr_buf(j)	(_j64_bstr_hdr(j)->buf)
 
 /* Boxed array memory header. */
 struct _j64_arr_hdr {
 	size_t	len;
 	size_t	cap;
-	j64_t	buf; /* used only for addressing */
+	j64_t	buf[];
 };
-
-#define _J64_ARR_HDR_SIZEOF	(offsetof(struct _j64_arr_hdr, buf))
 
 #define _j64_arr_hdr(j)		((struct _j64_arr_hdr *)_j64_get_ptr(j))
 #define j64_arr_len(j)		(_j64_arr_hdr(j)->len)
 #define j64_arr_cap(j)		(_j64_arr_hdr(j)->cap)
-#define _j64_arr_buf(j)		(&(_j64_arr_hdr(j)->buf))
+#define _j64_arr_buf(j)		(_j64_arr_hdr(j)->buf)
 
 /* Boxed object structures. */
 struct _j64_obj_kv {
@@ -171,7 +168,7 @@ struct _j64_obj_kv {
 struct _j64_obj_hdr {
 	size_t	cnt;
 	size_t	cap;
-	struct _j64_obj_kv kvs; /* used only for addressing */
+	struct _j64_obj_kv kvs[];
 };
 
 #define _j64_obj_hdr(j)		((struct _j64_obj_hdr *)_j64_get_ptr(j))

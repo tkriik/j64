@@ -44,7 +44,7 @@ j64_t j64_bstrn(const char *s, const size_t len)
 {
 	j64_t j = _J64_INITIALIZER;
 	// TODO: check for overflow
-	j.p = malloc(_J64_BSTR_HDR_SIZEOF + len);
+	j.p = malloc(sizeof(struct _j64_bstr_hdr) + len);
 	if (j.p == NULL)
 		return j64_null();
 	_j64_bstr_len_set(j, len);
@@ -150,7 +150,7 @@ j64_t j64_arr(const j64_t *js, const size_t len)
 	// TODO: more sane initial capacity
 	size_t cap = len + (len / 2);
 	// TODO: check for overflow
-	j.p = malloc(_J64_ARR_HDR_SIZEOF + cap * sizeof(j));
+	j.p = malloc(sizeof(struct _j64_arr_hdr) + cap * sizeof(j));
 	if (j.p == NULL)
 		return j64_null();
 
@@ -240,7 +240,7 @@ void j64_dbg(j64_t j)
 		break;
 	case J64_TAG_PRIM_BSTR:
 		hdr = _j64_get_ptr(j);
-		fprintf(stderr, "bstr (%zu): %p, %s ", hdr->len, (void *)hdr, &hdr->buf);
+		fprintf(stderr, "bstr (%zu): %p, %s ", hdr->len, (void *)hdr, hdr->buf);
 		break;
 	case J64_TAG_PRIM_ARR:
 		fprintf(stderr, "arr: %p", _j64_get_ptr(j));
