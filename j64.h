@@ -179,7 +179,6 @@ struct _j64_obj_hdr {
 };
 
 #define _j64_obj_hdr(j)		((struct _j64_obj_hdr *)_j64_get_ptr(j))
-#define _J64_OBJ_HDR_SIZEOF	(offsetof(struct _j64_obj_hdr, kvs))
 
 /* Constructor routines. */
 #define _j64_init(t, x)		((j64_t){ .t = (x) })
@@ -200,7 +199,7 @@ j64_t	j64_str(const char *);
 #define j64_estr()		_j64_init(w, J64_SUBTAG_LIT_ESTR)
 j64_t	j64_arr(const j64_t *, size_t);
 #define j64_earr()		_j64_init(w, J64_SUBTAG_LIT_EARR)
-j64_t	j64_obj(const j64_t *, size_t);
+j64_t	j64_obj(const j64_t *, const j64_t *, size_t);
 #define j64_eobj()		_j64_init(w, J64_SUBTAG_LIT_EOBJ)
 
 /* Testing routines. */

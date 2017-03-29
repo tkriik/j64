@@ -146,10 +146,10 @@ j64_t j64_arr(const j64_t *js, const size_t len)
 	j64_assert(js != NULL);
 
 	j64_t j;
-	// TODO: more sane initial capacity
-	size_t cap = len + (len / 2);
+	// TODO: sane initial array capacity
+	size_t cap = len * 2;
 	// TODO: check for overflow
-	j.p = malloc(sizeof(struct _j64_arr_hdr) + cap * sizeof(j));
+	j.p = malloc(sizeof(struct _j64_arr_hdr) + cap * sizeof(j64_t));
 	if (j.p == NULL)
 		return j64_null();
 
@@ -163,10 +163,46 @@ j64_t j64_arr(const j64_t *js, const size_t len)
 	_j64_prim_tag_set(j, J64_TAG_PRIM_ARR);
 
 	/* POST */
-	j64_assert(j.p != NULL);
+	j64_assert(_j64_get_ptr(j) != NULL);
 	j64_assert(j64_is_barr(j));
 	j64_assert(j64_arr_len(j) == len);
 	j64_assert(j64_arr_cap(j) == cap);
+
+	return j;
+}
+
+j64_t j64_obj(const j64_t *ks, const j64_t *vs, const size_t cnt)
+{
+	if (cnt == 0)
+		return j64_eobj();
+
+	/* PRE */
+	j64_assert(ks != NULL);
+	j64_assert(vs != NULL);
+
+	j64_t j;
+	// TODO: sane initial object capacity
+	size_t cap = cnt * 2;
+	// TODO: check overflow
+	j.p = malloc(sizeof(struct _j64_obj_hdr) + cap * sizeof(struct _j64_obj_kv));
+	if (j.p == NULL)
+		return j64_null();
+
+	struct _j64_obj_hdr *hdr = j.p;
+	hdr->cnt = cnt;
+	hdr->cap = cap;
+	// TODO: hash insert
+	for (size_t i = 0; i < cnt; i++) {
+		hdr->kvs[i].k = ks[i];
+		hdr->kvs[i].v = vs[i];
+	}
+
+	_j64_prim_tag_set(j, J64_TAG_PRIM_OBJ);
+
+	/* POST */
+	j64_assert(_j64_get_ptr(j) != NULL);
+	j64_assert(j64_is_obj(j));
+	// TODO: count and capacity assert
 
 	return j;
 }
@@ -187,7 +223,7 @@ void j64_free(j64_t j)
 		free(_j64_arr_hdr(j));
 		break;
 	case J64_TAG_PRIM_OBJ:
-		// TODO: _j64_obj_hdr
+		free(_j64_obj_hdr(j));
 		break;
 	}
 }

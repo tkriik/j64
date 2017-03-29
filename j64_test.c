@@ -131,11 +131,6 @@ int mk_str_with_16(void)
 	return j64_is_bstr(j64_str("YELLOW SUBMARINE"));
 }
 
-int mk_arr_with_0(void)
-{
-	return j64_is_earr(j64_arr(NULL, 0));
-}
-
 #define MK_ARR_TEST_TEMPLATE(_n)					\
 	int res = 0;							\
 	j64_t js[_n];							\
@@ -145,6 +140,11 @@ int mk_arr_with_0(void)
 	res = j64_is_barr(j);						\
 	j64_free(j);							\
 	return res
+
+int mk_arr_with_0(void)
+{
+	return j64_is_earr(j64_arr(NULL, 0));
+}
 
 int mk_arr_with_1(void)
 {
@@ -159,6 +159,39 @@ int mk_arr_with_8(void)
 int mk_arr_with_64(void)
 {
 	MK_ARR_TEST_TEMPLATE(64);
+}
+
+#define MK_OBJ_TEST_TEMPLATE(_n)					\
+	int res = 0;							\
+	j64_t ks[_n];							\
+	j64_t vs[_n];							\
+	for (size_t i = 0; i < _n; i++) {				\
+		ks[i] = j64_istr("key");				\
+		vs[i] = j64_int(i);					\
+	}								\
+	j64_t j = j64_obj(ks, vs, _n);					\
+	res = j64_is_obj(j);						\
+	j64_free(j);							\
+	return res
+
+int mk_obj_with_0(void)
+{
+	return j64_is_eobj(j64_obj(NULL, NULL, 0));
+}
+
+int mk_obj_with_1(void)
+{
+	MK_OBJ_TEST_TEMPLATE(1);
+}
+
+int mk_obj_with_8(void)
+{
+	MK_OBJ_TEST_TEMPLATE(8);
+}
+
+int mk_obj_with_64(void)
+{
+	MK_OBJ_TEST_TEMPLATE(64);
 }
 
 /*
@@ -446,6 +479,10 @@ struct test_info tests[] = {
 	TEST(mk_arr_with_1,		"tests array creation with one element"),
 	TEST(mk_arr_with_8,		"tests array creation with 8 elements"),
 	TEST(mk_arr_with_64,		"tests array creation with 64 elements"),
+	TEST(mk_obj_with_0,		"tests object creation with zero elements"),
+	TEST(mk_obj_with_1,		"tests object creation with one element"),
+	TEST(mk_obj_with_8,		"tests object creation with 8 elements"),
+	TEST(mk_obj_with_64,		"tests object creation with 64 elements"),
 
 	TEST(int_eq_with_zero,		"tests signed integer equality with zero"),
 	TEST(int_eq_with_one_minus,	"tests signed integer equality with minus one"),
