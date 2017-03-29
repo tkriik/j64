@@ -1,6 +1,13 @@
 #ifndef _J64_H_
 #define _J64_H_
 
+#ifndef J64_DEBUG
+#include <assert.h>
+#define j64_assert(x) assert(x)
+#else
+#define j64_assert(x)
+#endif /* J64_DEBUG */
+
 /*
  * J64 library type definitions, macros and function declarations.
  * This library stores every JSON value as a 8-byte word, where

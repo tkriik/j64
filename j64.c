@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,10 +25,10 @@ j64_t j64_istrn(const char *s, size_t len)
 	memcpy(_j64_istr_buf(j), s, len);
 
 	/* POST */
-	assert(j64_is_istr(j));
-	assert(len <= J64_ISTR_LEN_MAX);
-	assert(j64_istr_len(j) == len);
-	assert(strncmp((const char *)_j64_istr_buf(j), s, len) == 0);
+	j64_assert(j64_is_istr(j));
+	j64_assert(len <= J64_ISTR_LEN_MAX);
+	j64_assert(j64_istr_len(j) == len);
+	j64_assert(strncmp((const char *)_j64_istr_buf(j), s, len) == 0);
 
 	return j;
 }
@@ -52,9 +51,9 @@ j64_t j64_bstrn(const char *s, const size_t len)
 	_j64_prim_tag_set(j, J64_TAG_PRIM_BSTR);
 
 	/* POST */
-	assert(j64_is_bstr(j));
-	assert(j64_bstr_len(j) == len);
-	assert(strncmp((const char *)_j64_bstr_buf(j), s, len) == 0);
+	j64_assert(j64_is_bstr(j));
+	j64_assert(j64_bstr_len(j) == len);
+	j64_assert(strncmp((const char *)_j64_bstr_buf(j), s, len) == 0);
 
 	return j;
 }
@@ -71,7 +70,7 @@ j64_t j64_strn(const char *s, const size_t len)
 		return j64_estr();
 
 	/* PRE */
-	assert(s != NULL);
+	j64_assert(s != NULL);
 
 	j64_t j = _J64_INITIALIZER;
 
@@ -85,7 +84,7 @@ j64_t j64_strn(const char *s, const size_t len)
 		j = j64_bstrn(s, len);
 
 	/* POST */
-	assert(j64_is_str(j));
+	j64_assert(j64_is_str(j));
 
 	return j;
 }
@@ -101,8 +100,8 @@ j64_t j64_str(const char *s)
 size_t j64_istr_get(j64_t j, char *dst, const size_t dst_len)
 {
 	/* PRE */
-	assert(j64_is_istr(j));
-	assert(dst != NULL);
+	j64_assert(j64_is_istr(j));
+	j64_assert(dst != NULL);
 
 	if (dst_len == 0)
 		return 0;
@@ -112,7 +111,7 @@ size_t j64_istr_get(j64_t j, char *dst, const size_t dst_len)
 	dst[ncopy] = '\0';
 
 	/* POST */
-	assert(strncmp((const char *)_j64_istr_buf(j), dst, ncopy) == 0);
+	j64_assert(strncmp((const char *)_j64_istr_buf(j), dst, ncopy) == 0);
 
 	return ncopy;
 }
@@ -120,8 +119,8 @@ size_t j64_istr_get(j64_t j, char *dst, const size_t dst_len)
 size_t j64_bstr_get(j64_t j, char *dst, const size_t dst_len)
 {
 	/* PRE */
-	assert(j64_is_bstr(j));
-	assert(dst != NULL);
+	j64_assert(j64_is_bstr(j));
+	j64_assert(dst != NULL);
 
 	if (dst_len == 0)
 		return 0;
@@ -131,7 +130,7 @@ size_t j64_bstr_get(j64_t j, char *dst, const size_t dst_len)
 	dst[ncopy] = '\0';
 
 	/* POST */
-	assert(strncmp((const char *)_j64_bstr_buf(j), dst, ncopy) == 0);
+	j64_assert(strncmp((const char *)_j64_bstr_buf(j), dst, ncopy) == 0);
 
 	return ncopy;
 }
@@ -144,7 +143,7 @@ j64_t j64_arr(const j64_t *js, const size_t len)
 		return j64_earr();
 
 	/* PRE */
-	assert(js != NULL);
+	j64_assert(js != NULL);
 
 	j64_t j;
 	// TODO: more sane initial capacity
@@ -164,10 +163,10 @@ j64_t j64_arr(const j64_t *js, const size_t len)
 	_j64_prim_tag_set(j, J64_TAG_PRIM_ARR);
 
 	/* POST */
-	assert(j.p != NULL);
-	assert(j64_is_barr(j));
-	assert(j64_arr_len(j) == len);
-	assert(j64_arr_cap(j) == cap);
+	j64_assert(j.p != NULL);
+	j64_assert(j64_is_barr(j));
+	j64_assert(j64_arr_len(j) == len);
+	j64_assert(j64_arr_cap(j) == cap);
 
 	return j;
 }
