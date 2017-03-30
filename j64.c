@@ -184,7 +184,7 @@ j64_t j64_obj(const j64_t *ks, const j64_t *vs, const size_t cnt)
 	// TODO: sane initial object capacity
 	size_t cap = cnt * 2;
 	// TODO: check overflow
-	j.p = malloc(sizeof(struct _j64_obj_hdr) + cap * sizeof(struct _j64_obj_kv));
+	j.p = malloc(sizeof(struct _j64_obj_hdr) + cap * sizeof(struct _j64_kv));
 	if (j.p == NULL)
 		return j64_null();
 

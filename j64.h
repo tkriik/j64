@@ -167,15 +167,16 @@ struct _j64_arr_hdr {
 #define j64_arr_cap(j)		(_j64_arr_hdr(j)->cap)
 #define _j64_arr_buf(j)		(_j64_arr_hdr(j)->buf)
 
-/* Boxed object structures. */
-struct _j64_obj_kv {
+/* Key-value entry */
+struct _j64_kv {
 	j64_t k, v;
 };
 
+/* Boxed object memory header */
 struct _j64_obj_hdr {
 	size_t	cnt;
 	size_t	cap;
-	struct _j64_obj_kv kvs[];
+	struct _j64_kv kvs[];
 };
 
 #define _j64_obj_hdr(j)		((struct _j64_obj_hdr *)_j64_get_ptr(j))
