@@ -78,6 +78,11 @@ int test_int_min_unsafe(void);
 int test_int_overflow_unsafe(void);
 int test_int_underflow_unsafe(void);
 
+int test_istr_0(void);
+int test_istr_1(void);
+int test_istr_7(void);
+int test_istr_8(void);
+
 /* Test function and description list */
 static const struct test TESTS[] = {
 	TEST(test_undef,		"undefined literal construction"),
@@ -101,7 +106,12 @@ static const struct test TESTS[] = {
 	TEST(test_int_max_unsafe,	"unsafe maximum integer construction"),
 	TEST(test_int_min_unsafe,	"unsafe minimum integer construction"),
 	TEST(test_int_overflow_unsafe,	"unsafe overflowed integer construction"),
-	TEST(test_int_underflow_unsafe,	"unsafe underflowed integer construction")
+	TEST(test_int_underflow_unsafe,	"unsafe underflowed integer construction"),
+
+	TEST(test_istr_0,		"empty immediate string construction"),
+	TEST(test_istr_1,		"immediate string construction with 1 character"),
+	TEST(test_istr_7,		"immediate string construction with 7 characters"),
+	TEST(test_istr_8,		"immediate string construction with 8 characters")
 };
 
 #define NTESTS (sizeof(TESTS) / sizeof(TESTS[0]))
@@ -169,3 +179,16 @@ MK_INT_TEST(max_unsafe, J64_INT_MAX, J64_INT_MAX, int_unsafe, get_unsafe, int)
 MK_INT_TEST(min_unsafe, J64_INT_MIN, J64_INT_MIN, int_unsafe, get_unsafe, int)
 MK_INT_TEST(overflow_unsafe, INT64_MAX, -1, int_unsafe, get_unsafe, int)
 MK_INT_TEST(underflow_unsafe, INT64_MIN, 0, int_unsafe, get_unsafe, int)
+
+#define MK_ISTR_TEST(NAME, S, LENX, LENY)					\
+int										\
+test_istr_ ## NAME(void)							\
+{										\
+	j64_t j = j64_istr(S, LENX);						\
+	return j64_is_istr(j) || j64_istr_len(j) == LENY;			\
+}
+
+MK_ISTR_TEST(0, "", 0, 0)
+MK_ISTR_TEST(1, "1", 1, 1)
+MK_ISTR_TEST(7, "1234567", 7, 7)
+MK_ISTR_TEST(8, "12345678", 8, 7)
