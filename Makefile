@@ -1,15 +1,23 @@
-CC=		clang
-DFLAGS=		-DJ64_DEBUG
-CFLAGS=		-std=c99 -pedantic -Wall -Wextra -g -O0
+CC=		clang -Weverything
 
-SRC=		j64.c j64_test.c
+DFLAGS=		-DJ64_DEBUG \
+		-DJ64_STATIC
+
+CFLAGS=		-ansi -pedantic -g -O0 \
+		-Wno-missing-prototypes \
+		-Wno-long-long \
+		-Wno-unused-function \
+		-Wno-padded
+
+SRC=		j64_test.c
+
 BIN=		j64_test
 
 test: $(SRC)
-	$(CC) $(CFLAGS) $(DFLAGS) -o $(BIN) $(SRC)
+	$(CC) $(DFLAGS) $(CFLAGS) -o $(BIN) $(SRC)
 	./$(BIN)
 
 .PHONY: clean
 
 clean:
-	rm -f $(OBJ)
+	rm -f $(BIN)
