@@ -83,6 +83,11 @@ int test_istr_1(void);
 int test_istr_7(void);
 int test_istr_8(void);
 
+int test_istr_get_0(void);
+int test_istr_get_1(void);
+int test_istr_get_7(void);
+int test_istr_get_8(void);
+
 /* Test function and description list */
 static const struct test TESTS[] = {
 	TEST(test_undef,		"undefined literal construction"),
@@ -111,7 +116,12 @@ static const struct test TESTS[] = {
 	TEST(test_istr_0,		"empty immediate string construction"),
 	TEST(test_istr_1,		"immediate string construction with 1 character"),
 	TEST(test_istr_7,		"immediate string construction with 7 characters"),
-	TEST(test_istr_8,		"immediate string construction with 8 characters")
+	TEST(test_istr_8,		"immediate string construction with 8 characters"),
+
+	TEST(test_istr_get_0,		"empty immediate string storage"),
+	TEST(test_istr_get_1,		"immediate string storage with 1 character"),
+	TEST(test_istr_get_7,		"immediate string storage with 7 characters"),
+	TEST(test_istr_get_8,		"immediate string storage with 8 characters")
 };
 
 #define NTESTS (sizeof(TESTS) / sizeof(TESTS[0]))
@@ -192,3 +202,20 @@ MK_ISTR_TEST(0, "", 0, 0)
 MK_ISTR_TEST(1, "1", 1, 1)
 MK_ISTR_TEST(7, "1234567", 7, 7)
 MK_ISTR_TEST(8, "12345678", 8, 7)
+
+#define MK_ISTR_GET_TEST(NAME, S0, LEN0, S1, LEN1)				\
+int										\
+test_istr_get_ ## NAME(void)							\
+{										\
+	j64_t j;								\
+	size_t len;								\
+	uint8_t buf[LEN0 + 1];							\
+	j = j64_istr(S0, LEN0);							\
+	len = j64_istr_get(j, buf, sizeof(buf));				\
+	return memcmp(S1, buf, len) == 0 && len == LEN1;			\
+}
+
+MK_ISTR_GET_TEST(0, "", 0, "", 0)
+MK_ISTR_GET_TEST(1, "1", 1, "1", 1)
+MK_ISTR_GET_TEST(7, "1234567", 7, "1234567", 7)
+MK_ISTR_GET_TEST(8, "12345678", 8, "1234567", 7)

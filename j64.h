@@ -65,15 +65,6 @@ typedef union {
 
 #define J64_TYPE_LIT_GET(j)	((j).w & J64_TYPE_LIT_MASK)
 
-/* Int subtype */
-#define J64_INT_OFFS		(J64_TYPE_SIZE - 1)
-
-#define J64_INT_MIN             (-0x1fffffffffffffffLL - 1)
-#define J64_INT_MAX             (0x1fffffffffffffffLL)
-
-/* Immediate string */
-
-
 /* undefined ops */
 
 J64_API j64_t
@@ -146,6 +137,10 @@ j64_is_false(j64_t j)
 
 /* int ops */
 
+#define J64_INT_OFFS		(J64_TYPE_SIZE - 1)
+
+#define J64_INT_MIN             (-0x1fffffffffffffffLL - 1)
+#define J64_INT_MAX             (0x1fffffffffffffffLL)
 
 J64_API j64_t
 j64_int(int64_t i)
@@ -225,11 +220,22 @@ j64_is_istr(j64_t j)
 J64_API size_t
 j64_istr_len(j64_t j)
 {
-	if (!j64_is_istr(j))
-		return 0;
-
 	return (j.w & J64__ISTR_LEN_MASK) >> J64__ISTR_LEN_OFFS;
 }
+
+J64_API size_t
+j64_istr_get(j64_t j, void *buf, size_t len)
+{
+	size_t slen;
+
+	slen = j64_istr_len(j);
+	len = len < slen ? len : slen;
+	memcpy(buf, &j.b[1], len);
+
+	return len;
+}
+
+/* misc */
 
 #ifdef J64_DEBUG
 J64_API void
