@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <string.h>
 
-/* j64 union type for different types of accesses */
+/* J64 union type for different types of accesses */
 typedef union {
 	uint64_t	w;
 	int64_t		i;
@@ -30,7 +30,9 @@ typedef union {
 
 #define J64__INIT { 0 }
 
-/* Main types */
+/*
+ * Primary types
+ */
 
 #define J64_TYPE_OFFS		0
 #define J64_TYPE_SIZE		3
@@ -48,7 +50,9 @@ typedef union {
 
 #define J64_TYPE_GET(j)		((j).w & J64_TYPE_MASK)
 
-/* Literal subtypes */
+/*
+ * Literal subtype constants and functions
+ */
 
 #define J64_TYPE_LIT_OFFS	(J64_TYPE_OFFS + J64_TYPE_SIZE)
 #define J64_TYPE_LIT_SIZE	(J64_TYPE_LIT_OFFS + 3)
@@ -65,8 +69,6 @@ typedef union {
 
 #define J64_TYPE_LIT_GET(j)	((j).w & J64_TYPE_LIT_MASK)
 
-/* undefined ops */
-
 J64_API j64_t
 j64_undef(void)
 {
@@ -81,8 +83,6 @@ j64_is_undef(j64_t j)
 	return j.w == J64_TYPE_LIT_UNDEF;
 }
 
-/* null ops */
-
 J64_API j64_t
 j64_null(void)
 {
@@ -96,8 +96,6 @@ j64_is_null(j64_t j)
 {
 	return j.w == J64_TYPE_LIT_NULL;
 }
-
-/* bool ops */
 
 J64_API j64_t
 j64_false(void)
@@ -135,7 +133,9 @@ j64_is_false(j64_t j)
 	return j.w == J64_TYPE_LIT_FALSE;
 }
 
-/* int ops */
+/*
+ * Integer contants and functions
+ */
 
 #define J64_INT_OFFS		(J64_TYPE_SIZE - 1)
 
@@ -184,7 +184,9 @@ j64_int_get_unsafe(j64_t j)
 	return j.i >> J64_INT_OFFS;
 }
 
-/* immediate string ops */
+/*
+ * Immediate string constants and functions
+ */
 
 #define J64__ISTR_LEN_OFFS	(J64_TYPE_OFFS + J64_TYPE_SIZE)
 #define J64__ISTR_LEN_SIZE	3
@@ -235,7 +237,9 @@ j64_istr_get(j64_t j, void *buf, size_t len)
 	return len;
 }
 
-/* misc */
+/*
+ * misc
+ */
 
 #ifdef J64_DEBUG
 J64_API void
