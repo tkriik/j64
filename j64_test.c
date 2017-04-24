@@ -61,6 +61,7 @@ int test_false(void);
 int test_true(void);
 int test_bool_false(void);
 int test_bool_true(void);
+int test_estr(void);
 
 int test_int_zero(void);
 int test_int_pos_one(void);
@@ -96,6 +97,7 @@ static const struct test TESTS[] = {
 	TEST(test_true,			"true literal construction"),
 	TEST(test_bool_false,		"boolean literal construction with false"),
 	TEST(test_bool_true,		"boolean literal construction with true"),
+	TEST(test_estr,			"empty string literal construction"),
 
 	TEST(test_int_zero,		"zero integer construction"),
 	TEST(test_int_pos_one,		"positive integer constructon"),
@@ -154,6 +156,7 @@ MK_LIT_TEST(undef)
 MK_LIT_TEST(null)
 MK_LIT_TEST(false)
 MK_LIT_TEST(true)
+MK_LIT_TEST(estr)
 
 #define MK_BOOL_TEST(TYPE, N)							\
 int										\

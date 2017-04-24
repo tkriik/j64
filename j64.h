@@ -133,6 +133,20 @@ j64_is_false(j64_t j)
 	return j.w == J64_TYPE_LIT_FALSE;
 }
 
+J64_API j64_t
+j64_estr(void)
+{
+	j64_t j = J64__INIT;
+	j.w = J64_TYPE_LIT_ESTR;
+	return j;
+}
+
+J64_API int
+j64_is_estr(j64_t j)
+{
+	return j.w == J64_TYPE_LIT_ESTR;
+}
+
 /*
  * Integer contants and functions
  */
@@ -192,14 +206,6 @@ j64_int_get_unsafe(j64_t j)
 #define J64__ISTR_LEN_SIZE	3
 #define J64__ISTR_LEN_MASK	(((1 << J64__ISTR_LEN_SIZE) - 1) << J64__ISTR_LEN_OFFS)
 #define J64_ISTR_LEN_MAX	7
-
-J64_API j64_t
-j64_estr(void)
-{
-	j64_t j = J64__INIT;
-	j.w = J64_TYPE_LIT_ESTR;
-	return j;
-}
 
 J64_API j64_t
 j64_istr(const void *buf, size_t len)
