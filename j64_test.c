@@ -64,20 +64,18 @@ int test_bool_true(void);
 int test_estr(void);
 
 int test_int_zero(void);
-int test_int_pos_one(void);
-int test_int_neg_one(void);
+int test_int_one(void);
+int test_int_minus_one(void);
 int test_int_max(void);
 int test_int_min(void);
 int test_int_overflow(void);
-int test_int_underflow(void);
 
-int test_int_zero_unsafe(void);
-int test_int_pos_one_unsafe(void);
-int test_int_neg_one_unsafe(void);
-int test_int_max_unsafe(void);
-int test_int_min_unsafe(void);
-int test_int_overflow_unsafe(void);
-int test_int_underflow_unsafe(void);
+int test_int_get_zero(void);
+int test_int_get_one(void);
+int test_int_get_minus_one(void);
+int test_int_get_max(void);
+int test_int_get_min(void);
+int test_int_get_overflow(void);
 
 int test_istr_0(void);
 int test_istr_1(void);
@@ -104,20 +102,17 @@ static const struct test TESTS[] = {
 	TEST(test_estr,			"empty string literal construction"),
 
 	TEST(test_int_zero,		"zero integer construction"),
-	TEST(test_int_pos_one,		"positive integer constructon"),
-	TEST(test_int_neg_one,		"negative integer construction"),
+	TEST(test_int_one,		"positive integer constructon"),
+	TEST(test_int_minus_one,	"negative integer construction"),
 	TEST(test_int_max,		"maximum integer construction"),
 	TEST(test_int_min,		"minimum integer construction"),
 	TEST(test_int_overflow,		"overflowed integer construction"),
-	TEST(test_int_underflow,	"underflowed integer construction"),
-
-	TEST(test_int_zero_unsafe,	"unsafe zero integer construction"),
-	TEST(test_int_pos_one_unsafe,	"unsafe positive integer constructon"),
-	TEST(test_int_neg_one_unsafe,	"unsafe negative integer construction"),
-	TEST(test_int_max_unsafe,	"unsafe maximum integer construction"),
-	TEST(test_int_min_unsafe,	"unsafe minimum integer construction"),
-	TEST(test_int_overflow_unsafe,	"unsafe overflowed integer construction"),
-	TEST(test_int_underflow_unsafe,	"unsafe underflowed integer construction"),
+	TEST(test_int_get_zero,		"zero integer storage"),
+	TEST(test_int_get_one,		"positive integer storage"),
+	TEST(test_int_get_minus_one,	"negative integer storage"),
+	TEST(test_int_get_max,		"maximum integer storage"),
+	TEST(test_int_get_min,		"minimum integer storage"),
+	TEST(test_int_get_overflow,	"overflowed integer storage"),
 
 	TEST(test_istr_0,		"empty immediate string construction"),
 	TEST(test_istr_1,		"immediate string construction with 1 character"),
@@ -177,29 +172,35 @@ test_bool_ ##TYPE(void)								\
 MK_BOOL_TEST(false, 0)
 MK_BOOL_TEST(true, 1)
 
-#define MK_INT_TEST(NAME, X, Y, CONS, GET, TYPE)				\
+#define MK_INT_TEST(NAME, X)							\
 int										\
 test_int_ ## NAME(void)								\
 {										\
-	j64_t j = j64_ ## CONS(X);						\
-	return j64_is_ ## TYPE(j) && j64_int_ ## GET(j) == Y;			\
+	j64_t j = j64_int(X);							\
+	return j64_is_int(j);							\
 }
 
-MK_INT_TEST(zero, 0, 0, int, get, int)
-MK_INT_TEST(pos_one, 1, 1, int, get, int)
-MK_INT_TEST(neg_one, -1, -1, int, get, int)
-MK_INT_TEST(max, J64_INT_MAX, J64_INT_MAX, int, get, int)
-MK_INT_TEST(min, J64_INT_MIN, J64_INT_MIN, int, get, int)
-MK_INT_TEST(overflow, J64_INT_MAX + 1, 0, int, get, undef)
-MK_INT_TEST(underflow, J64_INT_MIN - 1, 0, int, get, undef)
+MK_INT_TEST(zero, 0)
+MK_INT_TEST(one, 1)
+MK_INT_TEST(minus_one, -1)
+MK_INT_TEST(max, J64_INT_MAX)
+MK_INT_TEST(min, J64_INT_MIN)
+MK_INT_TEST(overflow, J64_INT_MAX + 1)
 
-MK_INT_TEST(zero_unsafe, 0, 0, int_unsafe, get_unsafe, int)
-MK_INT_TEST(pos_one_unsafe, 1, 1, int_unsafe, get_unsafe, int)
-MK_INT_TEST(neg_one_unsafe, -1, -1, int_unsafe, get_unsafe, int)
-MK_INT_TEST(max_unsafe, J64_INT_MAX, J64_INT_MAX, int_unsafe, get_unsafe, int)
-MK_INT_TEST(min_unsafe, J64_INT_MIN, J64_INT_MIN, int_unsafe, get_unsafe, int)
-MK_INT_TEST(overflow_unsafe, INT64_MAX, -1, int_unsafe, get_unsafe, int)
-MK_INT_TEST(underflow_unsafe, INT64_MIN, 0, int_unsafe, get_unsafe, int)
+#define MK_INT_GET_TEST(NAME, X, Y)						\
+int										\
+test_int_get_ ## NAME(void)							\
+{										\
+	j64_t j = j64_int(X);							\
+	return j64_int_get(j) == Y;						\
+}
+
+MK_INT_GET_TEST(zero, 0, 0)
+MK_INT_GET_TEST(one, 1, 1)
+MK_INT_GET_TEST(minus_one, -1, -1)
+MK_INT_GET_TEST(max, J64_INT_MAX, J64_INT_MAX)
+MK_INT_GET_TEST(min, J64_INT_MIN, J64_INT_MIN)
+MK_INT_GET_TEST(overflow, J64_INT_MAX + 1, J64_INT_MIN)
 
 #define MK_ISTR_TEST(NAME, S, LENX, LENY)					\
 int										\

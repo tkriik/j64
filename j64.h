@@ -181,21 +181,13 @@ j64_is_estr(j64_t j)
 J64_API j64_t
 j64_int(int64_t i)
 {
-	j64_t j = J64__INIT;
-	if (J64_INT_MIN <= i && i <= J64_INT_MAX) {
-		j.i = i << J64_INT_OFFS;
-		j.w |= J64_TYPE_INT0;
-	} else
-		j.w = J64_TYPE_LIT_UNDEF;
-	return j;
-}
+	j64_t j;
 
-J64_API j64_t
-j64_int_unsafe(int64_t i)
-{
-	j64_t j = J64__INIT;
+	j64__assert(J64_INT_MIN <= i && i <= J64_INT_MAX);
+
 	j.i = i << J64_INT_OFFS;
 	j.w |= J64_TYPE_INT0;
+
 	return j;
 }
 
@@ -208,15 +200,8 @@ j64_is_int(j64_t j)
 J64_API int64_t
 j64_int_get(j64_t j)
 {
-	if (!j64_is_int(j))
-		return 0;
+	j64__assert(j64_is_int(j));
 
-	return j.i >> J64_INT_OFFS;
-}
-
-J64_API int64_t
-j64_int_get_unsafe(j64_t j)
-{
 	return j.i >> J64_INT_OFFS;
 }
 
@@ -367,7 +352,7 @@ j64_dbg(j64_t j)
 		break;
 	case J64_TYPE_INT0:
 	case J64_TYPE_INT1:
-		fprintf(stderr, "integer: %" PRIx64 "\n", j64_int_get_unsafe(j));
+		fprintf(stderr, "integer: %" PRIx64 "\n", j64_int_get(j));
 		break;
 	case J64_TYPE_ISTR:
 		memcpy(istr, &j.b[1], j64_istr_len(j));
