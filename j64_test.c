@@ -69,7 +69,6 @@ int test_int_minus_one(void);
 int test_int_max(void);
 int test_int_min(void);
 int test_int_overflow(void);
-
 int test_int_get_zero(void);
 int test_int_get_one(void);
 int test_int_get_minus_one(void);
@@ -81,7 +80,10 @@ int test_istr_0(void);
 int test_istr_1(void);
 int test_istr_7(void);
 int test_istr_8(void);
-
+int test_istr_len_0(void);
+int test_istr_len_1(void);
+int test_istr_len_7(void);
+int test_istr_len_8(void);
 int test_istr_get_0(void);
 int test_istr_get_1(void);
 int test_istr_get_7(void);
@@ -118,7 +120,10 @@ static const struct test TESTS[] = {
 	TEST(test_istr_1,		"immediate string construction with 1 character"),
 	TEST(test_istr_7,		"immediate string construction with 7 characters"),
 	TEST(test_istr_8,		"immediate string construction with 8 characters"),
-
+	TEST(test_istr_len_0,		"empty immediate string length"),
+	TEST(test_istr_len_1,		"immediate string length with 1 character"),
+	TEST(test_istr_len_7,		"immediate string length with 7 characters"),
+	TEST(test_istr_len_8,		"immediate string length with 8 characters"),
 	TEST(test_istr_get_0,		"empty immediate string storage"),
 	TEST(test_istr_get_1,		"immediate string storage with 1 character"),
 	TEST(test_istr_get_7,		"immediate string storage with 7 characters"),
@@ -202,35 +207,49 @@ MK_INT_GET_TEST(max, J64_INT_MAX, J64_INT_MAX)
 MK_INT_GET_TEST(min, J64_INT_MIN, J64_INT_MIN)
 MK_INT_GET_TEST(overflow, J64_INT_MAX + 1, J64_INT_MIN)
 
-#define MK_ISTR_TEST(NAME, S, LENX, LENY)					\
+#define MK_ISTR_TEST(S, LEN)							\
 int										\
-test_istr_ ## NAME(void)							\
+test_istr_ ## LEN(void)								\
 {										\
-	j64_t j = j64_istr(S, LENX);						\
-	return j64_is_istr(j) || j64_istr_len(j) == LENY;			\
+	j64_t j = j64_istr(S, LEN);						\
+	return j64_is_istr(j);							\
 }
 
-MK_ISTR_TEST(0, "", 0, 0)
-MK_ISTR_TEST(1, "1", 1, 1)
-MK_ISTR_TEST(7, "1234567", 7, 7)
-MK_ISTR_TEST(8, "12345678", 8, 7)
+MK_ISTR_TEST("", 0)
+MK_ISTR_TEST("1", 1)
+MK_ISTR_TEST("1234567", 7)
+MK_ISTR_TEST("12345678", 8)
 
-#define MK_ISTR_GET_TEST(NAME, S0, LEN0, S1, LEN1)				\
+#define MK_ISTR_LEN_TEST(S, LEN0, LEN1)						\
 int										\
-test_istr_get_ ## NAME(void)							\
-{										\
-	j64_t j;								\
-	size_t len;								\
-	uint8_t buf[LEN0 + 1];							\
-	j = j64_istr(S0, LEN0);							\
-	len = j64_istr_get(j, buf, sizeof(buf));				\
-	return memcmp(S1, buf, len) == 0 && len == LEN1;			\
+test_istr_len_ ## LEN0(void)                                                    \
+{                                                                               \
+	j64_t j = j64_istr(S, LEN0);                                            \
+	return j64_istr_len(j) == LEN1;                                         \
 }
 
-MK_ISTR_GET_TEST(0, "", 0, "", 0)
-MK_ISTR_GET_TEST(1, "1", 1, "1", 1)
-MK_ISTR_GET_TEST(7, "1234567", 7, "1234567", 7)
-MK_ISTR_GET_TEST(8, "12345678", 8, "1234567", 7)
+MK_ISTR_LEN_TEST("", 0, 0)
+MK_ISTR_LEN_TEST("1", 1, 1)
+MK_ISTR_LEN_TEST("1234567", 7, 7)
+MK_ISTR_LEN_TEST("12345678", 8, 7)
+
+#define MK_ISTR_GET_TEST(S0, LEN0, S1, LEN1)					\
+int										\
+test_istr_get_ ## LEN0(void)							\
+{										\
+	j64_t j;                                                                \
+	size_t ncopy;                                                           \
+	uint8_t buf[LEN0 + 1];                                                  \
+	memset(buf, '\0', sizeof(buf));                                         \
+	j = j64_istr(S0, LEN0);                                                 \
+	ncopy = j64_istr_get(j, buf, LEN0);                                     \
+	return memcmp(S1, buf, ncopy) == 0 && ncopy == LEN1;                    \
+}
+
+MK_ISTR_GET_TEST("", 0, "", 0)
+MK_ISTR_GET_TEST("1", 1, "1", 1)
+MK_ISTR_GET_TEST("1234567", 7, "1234567", 7)
+MK_ISTR_GET_TEST("12345678", 8, "1234567", 7)
 
 #define MK_BSTR_TEST(LEN)							\
 int										\
@@ -243,7 +262,7 @@ test_bstr_ ## LEN(void)								\
 		buf[i] = (uint8_t)i;						\
 	j = j64_bstr(buf, LEN);							\
 	return j64_is_bstr(j) && j64_bstr_len(j) == LEN;			\
-}
+} /* TODO: free */
 
 MK_BSTR_TEST(0)
 MK_BSTR_TEST(1)
