@@ -294,9 +294,7 @@ J64_API size_t
 j64_bstr_len(j64_t j)
 {
 	struct j64__bstr_hdr *hdr;
-
 	j64__assert(j64_is_bstr(j));
-
 	hdr = J64__BSTR_HDR(j);
 
 	return hdr->len;

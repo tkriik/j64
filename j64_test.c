@@ -93,6 +93,10 @@ int test_bstr_0(void);
 int test_bstr_1(void);
 int test_bstr_8(void);
 int test_bstr_65536(void);
+int test_bstr_len_0(void);
+int test_bstr_len_1(void);
+int test_bstr_len_8(void);
+int test_bstr_len_65536(void);
 
 /* Test function and description list */
 static const struct test TESTS[] = {
@@ -133,7 +137,11 @@ static const struct test TESTS[] = {
 	TEST(test_bstr_0,		"empty boxed string construction"),
 	TEST(test_bstr_1,		"boxed string construction with 1 character"),
 	TEST(test_bstr_1,		"boxed string construction with 8 character"),
-	TEST(test_bstr_65536,		"boxed string construction with 65536 characters")
+	TEST(test_bstr_65536,		"boxed string construction with 65536 characters"),
+	TEST(test_bstr_len_0,		"empty boxed string length"),
+	TEST(test_bstr_len_1,		"boxed string length with 1 character"),
+	TEST(test_bstr_len_1,		"boxed string length with 8 character"),
+	TEST(test_bstr_len_65536,	"boxed string length with 65536 characters")
 };
 
 #define NTESTS (sizeof(TESTS) / sizeof(TESTS[0]))
@@ -258,15 +266,29 @@ int										\
 test_bstr_ ## LEN(void)								\
 {										\
 	j64_t j;								\
-	size_t i;								\
 	uint8_t buf[LEN + 1];							\
-	for (i = 0; i < LEN; i++)						\
-		buf[i] = (uint8_t)i;						\
+	memset(buf, '\0', sizeof(buf));						\
 	j = j64_bstr(buf, LEN);							\
-	return j64_is_bstr(j) && j64_bstr_len(j) == LEN;			\
+	return j64_is_bstr(j);							\
 } /* TODO: free */
 
 MK_BSTR_TEST(0)
 MK_BSTR_TEST(1)
 MK_BSTR_TEST(8)
 MK_BSTR_TEST(65536)
+
+#define MK_BSTR_LEN_TEST(LEN)							\
+int										\
+test_bstr_len_ ## LEN(void)								\
+{										\
+	j64_t j;                                                                \
+	uint8_t buf[LEN + 1];                                                   \
+	memset(buf, '\0', sizeof(buf));                                         \
+	j = j64_bstr(buf, LEN);                                                 \
+	return j64_bstr_len(j) == LEN;                                          \
+}
+
+MK_BSTR_LEN_TEST(0)
+MK_BSTR_LEN_TEST(1)
+MK_BSTR_LEN_TEST(8)
+MK_BSTR_LEN_TEST(65536)
