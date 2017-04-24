@@ -242,6 +242,7 @@ j64_istr(const void *buf, size_t len)
 	return j;
 }
 
+J64_API int
 j64_is_istr(j64_t j)
 {
 	return J64_TYPE_GET(j) == J64_TYPE_ISTR;
