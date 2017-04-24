@@ -89,6 +89,10 @@ int test_istr_get_1(void);
 int test_istr_get_7(void);
 int test_istr_get_8(void);
 
+int test_bstr_0(void);
+int test_bstr_1(void);
+int test_bstr_65536(void);
+
 /* Test function and description list */
 static const struct test TESTS[] = {
 	TEST(test_undef,		"undefined literal construction"),
@@ -123,7 +127,11 @@ static const struct test TESTS[] = {
 	TEST(test_istr_get_0,		"empty immediate string storage"),
 	TEST(test_istr_get_1,		"immediate string storage with 1 character"),
 	TEST(test_istr_get_7,		"immediate string storage with 7 characters"),
-	TEST(test_istr_get_8,		"immediate string storage with 8 characters")
+	TEST(test_istr_get_8,		"immediate string storage with 8 characters"),
+
+	TEST(test_bstr_0,		"empty boxed string construction"),
+	TEST(test_bstr_1,		"boxed string construction with 1 character"),
+	TEST(test_bstr_65536,		"boxed string construction with 65536 characters")
 };
 
 #define NTESTS (sizeof(TESTS) / sizeof(TESTS[0]))
@@ -222,3 +230,20 @@ MK_ISTR_GET_TEST(0, "", 0, "", 0)
 MK_ISTR_GET_TEST(1, "1", 1, "1", 1)
 MK_ISTR_GET_TEST(7, "1234567", 7, "1234567", 7)
 MK_ISTR_GET_TEST(8, "12345678", 8, "1234567", 7)
+
+#define MK_BSTR_TEST(LEN)							\
+int										\
+test_bstr_ ## LEN(void)								\
+{										\
+	j64_t j;								\
+	size_t i;								\
+	uint8_t buf[LEN + 1];							\
+	for (i = 0; i < LEN; i++)						\
+		buf[i] = (uint8_t)i;						\
+	j = j64_bstr(buf, LEN);							\
+	return j64_is_bstr(j) && j64_bstr_len(j) == LEN;			\
+}
+
+MK_BSTR_TEST(0)
+MK_BSTR_TEST(1)
+MK_BSTR_TEST(65536)

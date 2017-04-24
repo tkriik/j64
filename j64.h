@@ -15,6 +15,28 @@
 
 #define J64_API J64_STATIC_API J64_INLINE_API
 
+#ifdef J64_DEBUG
+#include <assert.h>
+#define j64__assert(x) assert(x)
+#else
+#define j64__assert(x)
+#endif
+
+#ifndef J64_MALLOC
+#include <stdlib.h>
+#define J64_MALLOC malloc
+#endif /* J64_MALLOC */
+
+#ifndef J64_REALLOC
+#include <stdlib.h>
+#define J64_REALLOC realloc
+#endif
+
+#ifndef J64_FREE
+#include <stdlib.h>
+#define J64_FREE free
+#endif
+
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -241,6 +263,57 @@ j64_istr_get(j64_t j, void *buf, size_t len)
 	memcpy(buf, &j.b[1], len);
 
 	return len;
+}
+
+/*
+ * Boxed string
+ */
+
+struct j64__bstr_hdr {
+	size_t	len;
+	uint8_t	buf;
+};
+
+#define J64__BSTR_HDR(j)	((struct j64__bstr_hdr *)((j).p & (uintptr_t)J64_PTR_MASK))
+#define J64__BSTR_HDR_SIZEOF	(offsetof(struct j64__bstr_hdr, buf))
+
+J64_API j64_t
+j64_bstr(const void *buf, size_t len)
+{
+	j64_t j;
+	struct j64__bstr_hdr *hdr;
+
+	j64__assert(buf != NULL);
+
+	hdr = J64_MALLOC(J64__BSTR_HDR_SIZEOF + len);
+	if (hdr == NULL)
+		return j64_undef();
+
+	hdr->len = len;
+	memcpy(&hdr->buf, buf, len);
+
+	j.p = (uintptr_t)hdr;
+	j.w |= J64_TYPE_BSTR;
+
+	return j;
+}
+
+J64_API int
+j64_is_bstr(j64_t j)
+{
+	return J64_TYPE_GET(j) == J64_TYPE_BSTR;
+}
+
+J64_API size_t
+j64_bstr_len(j64_t j)
+{
+	struct j64__bstr_hdr *hdr;
+
+	j64__assert(j64_is_bstr(j));
+
+	hdr = J64__BSTR_HDR(j);
+
+	return hdr->len;
 }
 
 /*
