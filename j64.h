@@ -242,13 +242,14 @@ j64_istr_len(j64_t j)
 J64_API size_t
 j64_istr_get(j64_t j, void *buf, size_t len)
 {
-	size_t slen;
+	size_t n;
 
-	slen = j64_istr_len(j);
-	len = len < slen ? len : slen;
-	memcpy(buf, &j.b[1], len);
+	j64__assert(j64_is_istr(j));
+	n = j64_istr_len(j);
+	n = n < len ? n : len;
+	memcpy(buf, &j.b[1], n);
 
-	return len;
+	return n;
 }
 
 /*
@@ -298,6 +299,22 @@ j64_bstr_len(j64_t j)
 	hdr = J64__BSTR_HDR(j);
 
 	return hdr->len;
+}
+
+J64_API size_t
+j64_bstr_get(j64_t j, void *buf, size_t len)
+{
+	struct j64__bstr_hdr *hdr;
+	size_t n;
+
+	j64__assert(j64_is_bstr(j));
+
+	hdr = J64__BSTR_HDR(j);
+	n = j64_bstr_len(j);
+	n = n < len ? n : len;
+	memcpy(buf, &hdr->buf, n);
+
+	return n;
 }
 
 /*

@@ -97,6 +97,10 @@ int test_bstr_len_0(void);
 int test_bstr_len_1(void);
 int test_bstr_len_8(void);
 int test_bstr_len_65536(void);
+int test_bstr_get_0(void);
+int test_bstr_get_1(void);
+int test_bstr_get_8(void);
+int test_bstr_get_65536(void);
 
 /* Test function and description list */
 static const struct test TESTS[] = {
@@ -141,7 +145,11 @@ static const struct test TESTS[] = {
 	TEST(test_bstr_len_0,		"empty boxed string length"),
 	TEST(test_bstr_len_1,		"boxed string length with 1 character"),
 	TEST(test_bstr_len_1,		"boxed string length with 8 character"),
-	TEST(test_bstr_len_65536,	"boxed string length with 65536 characters")
+	TEST(test_bstr_len_65536,	"boxed string length with 65536 characters"),
+	TEST(test_bstr_get_0,		"empty boxed string storage"),
+	TEST(test_bstr_get_1,		"boxed string storage with 1 character"),
+	TEST(test_bstr_get_1,		"boxed string storage with 8 character"),
+	TEST(test_bstr_get_65536,	"boxed string storage with 65536 characters")
 };
 
 #define NTESTS (sizeof(TESTS) / sizeof(TESTS[0]))
@@ -248,12 +256,12 @@ int										\
 test_istr_get_ ## LEN0(void)							\
 {										\
 	j64_t j;                                                                \
-	size_t ncopy;                                                           \
+	size_t n;								\
 	uint8_t buf[LEN0 + 1];                                                  \
 	memset(buf, '\0', sizeof(buf));                                         \
 	j = j64_istr(S0, LEN0);                                                 \
-	ncopy = j64_istr_get(j, buf, LEN0);                                     \
-	return memcmp(S1, buf, ncopy) == 0 && ncopy == LEN1;                    \
+	n = j64_istr_get(j, buf, LEN0);						\
+	return memcmp(S1, buf, n) == 0 && n == LEN1;				\
 }
 
 MK_ISTR_GET_TEST("", 0, "", 0)
@@ -279,12 +287,12 @@ MK_BSTR_TEST(65536)
 
 #define MK_BSTR_LEN_TEST(LEN)							\
 int										\
-test_bstr_len_ ## LEN(void)								\
+test_bstr_len_ ## LEN(void)							\
 {										\
 	j64_t j;                                                                \
 	uint8_t buf[LEN + 1];                                                   \
-	memset(buf, '\0', sizeof(buf));                                         \
-	j = j64_bstr(buf, LEN);                                                 \
+	memset(buf, '\0', LEN);							\
+	j = j64_bstr(buf, LEN);							\
 	return j64_bstr_len(j) == LEN;                                          \
 }
 
@@ -292,3 +300,22 @@ MK_BSTR_LEN_TEST(0)
 MK_BSTR_LEN_TEST(1)
 MK_BSTR_LEN_TEST(8)
 MK_BSTR_LEN_TEST(65536)
+
+#define MK_BSTR_GET_TEST(LEN)							\
+int										\
+test_bstr_get_ ## LEN(void)							\
+{										\
+	j64_t j;								\
+	size_t n;                                                               \
+	uint8_t src[LEN + 1];                                                   \
+	uint8_t dst[LEN + 1];                                                   \
+	memset(src, 0xFE, LEN);							\
+	j = j64_bstr(src, LEN);                                         	\
+	n = j64_bstr_get(j, dst, LEN);                                  	\
+	return memcmp(src, dst, LEN) == 0 && n == LEN;                          \
+}
+
+MK_BSTR_GET_TEST(0)
+MK_BSTR_GET_TEST(1)
+MK_BSTR_GET_TEST(8)
+MK_BSTR_GET_TEST(65536)
