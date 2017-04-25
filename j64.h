@@ -56,10 +56,10 @@ typedef union {
  * Primary types
  */
 
-#define J64_TYPE_OFFS		0
-#define J64_TYPE_SIZE		3
-#define J64_TYPE_MASK		((1 << J64_TYPE_SIZE) - 1)
-#define J64_PTR_MASK		(~J64_TYPE_MASK)
+#define J64__TYPE_OFFS		0
+#define J64__TYPE_SIZE		3
+#define J64__TYPE_MASK		((1 << J64__TYPE_SIZE) - 1)
+#define J64__PTR_MASK		(~J64__TYPE_MASK)
 
 #define J64_TYPE_LIT		0x0
 #define J64_TYPE_FLOAT		0x1
@@ -70,26 +70,26 @@ typedef union {
 #define J64_TYPE_OBJ		0x6
 #define J64_TYPE_INT1		0x7
 
-#define J64_TYPE_GET(j)		((j).w & J64_TYPE_MASK)
+#define J64_TYPE_GET(j)		((j).w & J64__TYPE_MASK)
 
 /*
  * Literal subtype constants and functions
  */
 
-#define J64_TYPE_LIT_OFFS	(J64_TYPE_OFFS + J64_TYPE_SIZE)
-#define J64_TYPE_LIT_SIZE	(J64_TYPE_LIT_OFFS + 3)
-#define J64_TYPE_LIT_MASK	((1 << J64_TYPE_LIT_SIZE) - 1)
+#define J64__TYPE_LIT_OFFS	(J64__TYPE_OFFS + J64__TYPE_SIZE)
+#define J64__TYPE_LIT_SIZE	(J64__TYPE_LIT_OFFS + 3)
+#define J64__TYPE_LIT_MASK	((1 << J64__TYPE_LIT_SIZE) - 1)
 
-#define J64_TYPE_LIT_UNDEF	((0x0 << J64_TYPE_LIT_OFFS) | J64_TYPE_LIT)
-#define J64_TYPE_LIT_NULL	((0x1 << J64_TYPE_LIT_OFFS) | J64_TYPE_LIT)
-#define J64_TYPE_LIT_FALSE	((0x2 << J64_TYPE_LIT_OFFS) | J64_TYPE_LIT)
-#define J64_TYPE_LIT_TRUE	((0x3 << J64_TYPE_LIT_OFFS) | J64_TYPE_LIT)
-#define J64_TYPE_LIT_ESTR	((0x4 << J64_TYPE_LIT_OFFS) | J64_TYPE_LIT)
-#define J64_TYPE_LIT_EARR	((0x5 << J64_TYPE_LIT_OFFS) | J64_TYPE_LIT)
-#define J64_TYPE_LIT_EOBJ	((0x6 << J64_TYPE_LIT_OFFS) | J64_TYPE_LIT)
-#define J64_TYPE_LIT_DEL	((0x7 << J64_TYPE_LIT_OFFS) | J64_TYPE_LIT)
+#define J64_TYPE_LIT_UNDEF	((0x0 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
+#define J64_TYPE_LIT_NULL	((0x1 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
+#define J64_TYPE_LIT_FALSE	((0x2 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
+#define J64_TYPE_LIT_TRUE	((0x3 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
+#define J64_TYPE_LIT_ESTR	((0x4 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
+#define J64_TYPE_LIT_EARR	((0x5 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
+#define J64_TYPE_LIT_EOBJ	((0x6 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
+#define J64_TYPE_LIT_DEL	((0x7 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
 
-#define J64_TYPE_LIT_GET(j)	((j).w & J64_TYPE_LIT_MASK)
+#define J64_TYPE_LIT_GET(j)	((j).w & J64__TYPE_LIT_MASK)
 
 J64_API j64_t
 j64_undef(void)
@@ -173,7 +173,7 @@ j64_is_estr(j64_t j)
  * Integer contants and functions
  */
 
-#define J64_INT_OFFS		(J64_TYPE_SIZE - 1)
+#define J64__INT_OFFS		(J64__TYPE_SIZE - 1)
 
 #define J64_INT_MIN             (-0x1fffffffffffffffLL - 1)
 #define J64_INT_MAX             (0x1fffffffffffffffLL)
@@ -185,7 +185,7 @@ j64_int(int64_t i)
 
 	j64__assert(J64_INT_MIN <= i && i <= J64_INT_MAX);
 
-	j.i = i << J64_INT_OFFS;
+	j.i = i << J64__INT_OFFS;
 	j.w |= J64_TYPE_INT0;
 
 	return j;
@@ -202,16 +202,17 @@ j64_int_get(j64_t j)
 {
 	j64__assert(j64_is_int(j));
 
-	return j.i >> J64_INT_OFFS;
+	return j.i >> J64__INT_OFFS;
 }
 
 /*
  * Immediate string constants and functions
  */
 
-#define J64__ISTR_LEN_OFFS	(J64_TYPE_OFFS + J64_TYPE_SIZE)
+#define J64__ISTR_LEN_OFFS	(J64__TYPE_OFFS + J64__TYPE_SIZE)
 #define J64__ISTR_LEN_SIZE	3
 #define J64__ISTR_LEN_MASK	(((1 << J64__ISTR_LEN_SIZE) - 1) << J64__ISTR_LEN_OFFS)
+
 #define J64_ISTR_LEN_MAX	7
 
 J64_API j64_t
@@ -261,7 +262,7 @@ struct j64__bstr_hdr {
 	uint8_t	buf;
 };
 
-#define J64__BSTR_HDR(j)	((struct j64__bstr_hdr *)((j).p & (uintptr_t)J64_PTR_MASK))
+#define J64__BSTR_HDR(j)	((struct j64__bstr_hdr *)((j).p & (uintptr_t)J64__PTR_MASK))
 #define J64__BSTR_HDR_SIZEOF	(offsetof(struct j64__bstr_hdr, buf))
 
 J64_API j64_t
