@@ -206,6 +206,40 @@ j64_int_get(j64_t j)
 }
 
 /*
+ * Floats
+ */
+
+/* TODO: J64-specific min-max float constants */
+#define J64__FLOAT_OFFS 3
+#define J64__FLOAT_MASK 0xfffffffffffffff8
+
+J64_API j64_t
+j64_float(double f)
+{
+	j64_t j = J64__INIT;
+
+	j.f = f;
+	j.w &= J64__FLOAT_MASK; /* zero the lowest mantissa bits for type */
+	j.w |= J64_TYPE_FLOAT;
+
+	return j;
+}
+
+J64_API int
+j64_is_float(j64_t j)
+{
+	return J64_TYPE_GET(j) == J64_TYPE_FLOAT;
+}
+
+J64_API double
+j64_float_get(j64_t j)
+{
+	j64__assert(j64_is_float(j));
+	j.w &= J64__FLOAT_MASK;
+	return j.f;
+}
+
+/*
  * Immediate string constants and functions
  */
 

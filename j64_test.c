@@ -76,6 +76,19 @@ int test_int_get_max(void);
 int test_int_get_min(void);
 int test_int_get_overflow(void);
 
+int test_float_zero(void);
+int test_float_one(void);
+int test_float_neg_zero(void);
+int test_float_neg_one(void);
+int test_float_small(void);
+int test_float_too_small(void);
+int test_float_get_zero(void);
+int test_float_get_one(void);
+int test_float_get_neg_zero(void);
+int test_float_get_neg_one(void);
+int test_float_get_small(void);
+int test_float_get_too_small(void);
+
 int test_istr_0(void);
 int test_istr_1(void);
 int test_istr_7(void);
@@ -124,6 +137,19 @@ static const struct test TESTS[] = {
 	TEST(test_int_get_max,		"maximum integer storage"),
 	TEST(test_int_get_min,		"minimum integer storage"),
 	TEST(test_int_get_overflow,	"overflowed integer storage"),
+
+	TEST(test_float_zero,		"zero floating-point construction"),
+	TEST(test_float_one,		"positive floating-point construction"),
+	TEST(test_float_neg_one,	"negative floating-point construction"),
+	TEST(test_float_neg_zero,	"negative zero floating-point construction"),
+	TEST(test_float_small,		"very small floating-point construction"),
+	TEST(test_float_too_small,	"too small floating-point construction"),
+	TEST(test_float_get_zero,	"zero floating-point storage"),
+	TEST(test_float_get_one,	"positive floating-point storage"),
+	TEST(test_float_get_neg_one,	"negative floating-point storage"),
+	TEST(test_float_get_neg_zero,	"negative zero floating-point storage"),
+	TEST(test_float_get_small,	"very small floating-point storage"),
+	TEST(test_float_get_too_small,	"too small floating-point storage"),
 
 	TEST(test_istr_0,		"empty immediate string construction"),
 	TEST(test_istr_1,		"immediate string construction with 1 character"),
@@ -224,6 +250,67 @@ MK_INT_GET_TEST(minus_one, -1, -1)
 MK_INT_GET_TEST(max, J64_INT_MAX, J64_INT_MAX)
 MK_INT_GET_TEST(min, J64_INT_MIN, J64_INT_MIN)
 MK_INT_GET_TEST(overflow, J64_INT_MAX + 1, J64_INT_MIN)
+
+#define MK_FLOAT_TEST(NAME, X)							\
+int										\
+test_float_ ## NAME(void)							\
+{										\
+	j64_t j = j64_float(X);                                                 \
+	return j64_is_float(j);                                                 \
+}
+
+#define MK_FLOAT_TEST_W(NAME, X)						\
+int										\
+test_float_ ## NAME(void)							\
+{										\
+	j64_t j;								\
+	union {									\
+		uint64_t w;							\
+		double f;							\
+	} u;									\
+	u.w = X;								\
+	j = j64_float(u.f);							\
+	return j64_is_float(j);							\
+}
+
+/* TODO: NaN, negative inf and positive inf */
+MK_FLOAT_TEST(zero, 0.0)
+MK_FLOAT_TEST(neg_zero, -0.0)
+MK_FLOAT_TEST(one, 1.0)
+MK_FLOAT_TEST(neg_one, 1.0)
+MK_FLOAT_TEST_W(small, 0x8000000000000008ULL)
+MK_FLOAT_TEST_W(too_small, 0x8000000000000004ULL)
+
+#define MK_FLOAT_GET_TEST(NAME, X)						\
+int										\
+test_float_get_ ## NAME(void)							\
+{										\
+	j64_t j = j64_float(X);							\
+	return j64_float_get(j) == X;						\
+}
+
+#define MK_FLOAT_GET_TEST_W(NAME, X, Y)						\
+int										\
+test_float_get_ ## NAME(void)							\
+{										\
+	j64_t j;								\
+	union {									\
+		uint64_t w;							\
+		double f;							\
+	} u;									\
+	u.w = X;								\
+	j = j64_float(u.f);							\
+	u.f = j64_float_get(j);							\
+	return u.w == Y;							\
+}
+
+/* TODO: NaN, negative inf and positive inf */
+MK_FLOAT_GET_TEST(zero, 0.0)
+MK_FLOAT_GET_TEST(one, 1.0)
+MK_FLOAT_GET_TEST(neg_zero, -0.0)
+MK_FLOAT_GET_TEST(neg_one, -1.0)
+MK_FLOAT_GET_TEST_W(small, 0x8000000000000008ULL, 0x8000000000000008ULL)
+MK_FLOAT_GET_TEST_W(too_small, 0x800000000000000cULL, 0x8000000000000008ULL)
 
 #define MK_ISTR_TEST(S, LEN)							\
 int										\

@@ -6,7 +6,8 @@ CFLAGS=		-ansi -pedantic -g -O0 \
 		-Wno-missing-prototypes \
 		-Wno-long-long \
 		-Wno-unused-function \
-		-Wno-padded
+		-Wno-padded \
+		-Wno-float-equal
 
 SRC=		j64_test.c
 
