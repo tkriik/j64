@@ -181,7 +181,7 @@ j64_is_estr(j64_t j)
 J64_API j64_t
 j64_int(int64_t i)
 {
-	j64_t j;
+	j64_t j = J64__INIT;
 
 	j64__assert(J64_INT_MIN <= i && i <= J64_INT_MAX);
 
@@ -267,7 +267,7 @@ struct j64__bstr_hdr {
 J64_API j64_t
 j64_bstr(const void *buf, size_t len)
 {
-	j64_t j;
+	j64_t j = J64__INIT;
 	struct j64__bstr_hdr *hdr;
 
 	j64__assert(buf != NULL);
