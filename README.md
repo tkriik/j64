@@ -4,7 +4,7 @@ In-progress
 
 # What
 
-A JSON library written in C, where all values are represented as 64-bit words.
+A header-only JSON library written in C, where all values are represented as 64-bit words.
 Values are either immediate or boxed.
 
 An immediate value is stored directly in the word, which can be:
@@ -29,6 +29,9 @@ You should **not** use this in production.
 
 # How
 
-Integrate `j64.h` and `j64.c` directly into your project with a C99-compliant compiler.
+Integrate `j64.h` directly into your project.
+An ANSI-compliant compiler is enough, although it needs
+to support `long long` integer literals.
+
 For testing, you should compile and run `j64_test.c` with the same compilation flags as
 used in your code base.
