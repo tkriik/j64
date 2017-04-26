@@ -134,88 +134,94 @@ int test_barr_empty_get_65536(void);
 int test_barr_set_get_1(void);
 int test_barr_set_get_8(void);
 int test_barr_set_get_65536(void);
+int test_barr_set_free_get_1(void);
+int test_barr_set_free_get_8(void);
+int test_barr_set_free_get_65536(void);
 
 /* Test function and description list */
 static const struct test TESTS[] = {
-	TEST(test_undef,		"undefined literal construction"),
-	TEST(test_null,			"null literal construction"),
-	TEST(test_false,		"false literal construction"),
-	TEST(test_true,			"true literal construction"),
-	TEST(test_bool_false,		"boolean literal construction with false"),
-	TEST(test_bool_true,		"boolean literal construction with true"),
-	TEST(test_estr,			"empty string literal construction"),
-	TEST(test_earr,			"empty array literal construction"),
+	TEST(test_undef,			"undefined literal construction"),
+	TEST(test_null,				"null literal construction"),
+	TEST(test_false,			"false literal construction"),
+	TEST(test_true,				"true literal construction"),
+	TEST(test_bool_false,			"boolean literal construction with false"),
+	TEST(test_bool_true,			"boolean literal construction with true"),
+	TEST(test_estr,				"empty string literal construction"),
+	TEST(test_earr,				"empty array literal construction"),
 
-	TEST(test_int_zero,		"zero integer construction"),
-	TEST(test_int_one,		"positive integer constructon"),
-	TEST(test_int_minus_one,	"negative integer construction"),
-	TEST(test_int_max,		"maximum integer construction"),
-	TEST(test_int_min,		"minimum integer construction"),
-	TEST(test_int_overflow,		"overflowed integer construction"),
-	TEST(test_int_get_zero,		"zero integer storage"),
-	TEST(test_int_get_one,		"positive integer storage"),
-	TEST(test_int_get_minus_one,	"negative integer storage"),
-	TEST(test_int_get_max,		"maximum integer storage"),
-	TEST(test_int_get_min,		"minimum integer storage"),
-	TEST(test_int_get_overflow,	"overflowed integer storage"),
+	TEST(test_int_zero,			"zero integer construction"),
+	TEST(test_int_one,			"positive integer constructon"),
+	TEST(test_int_minus_one,		"negative integer construction"),
+	TEST(test_int_max,			"maximum integer construction"),
+	TEST(test_int_min,			"minimum integer construction"),
+	TEST(test_int_overflow,			"overflowed integer construction"),
+	TEST(test_int_get_zero,			"zero integer storage"),
+	TEST(test_int_get_one,			"positive integer storage"),
+	TEST(test_int_get_minus_one,		"negative integer storage"),
+	TEST(test_int_get_max,			"maximum integer storage"),
+	TEST(test_int_get_min,			"minimum integer storage"),
+	TEST(test_int_get_overflow,		"overflowed integer storage"),
 
-	TEST(test_float_zero,		"zero floating-point construction"),
-	TEST(test_float_one,		"positive floating-point construction"),
-	TEST(test_float_neg_one,	"negative floating-point construction"),
-	TEST(test_float_neg_zero,	"negative zero floating-point construction"),
-	TEST(test_float_small,		"very small floating-point construction"),
-	TEST(test_float_too_small,	"too small floating-point construction"),
-	TEST(test_float_get_zero,	"zero floating-point storage"),
-	TEST(test_float_get_one,	"positive floating-point storage"),
-	TEST(test_float_get_neg_one,	"negative floating-point storage"),
-	TEST(test_float_get_neg_zero,	"negative zero floating-point storage"),
-	TEST(test_float_get_small,	"very small floating-point storage"),
-	TEST(test_float_get_too_small,	"too small floating-point storage"),
+	TEST(test_float_zero,			"zero floating-point construction"),
+	TEST(test_float_one,			"positive floating-point construction"),
+	TEST(test_float_neg_one,		"negative floating-point construction"),
+	TEST(test_float_neg_zero,		"negative zero floating-point construction"),
+	TEST(test_float_small,			"very small floating-point construction"),
+	TEST(test_float_too_small,		"too small floating-point construction"),
+	TEST(test_float_get_zero,		"zero floating-point storage"),
+	TEST(test_float_get_one,		"positive floating-point storage"),
+	TEST(test_float_get_neg_one,		"negative floating-point storage"),
+	TEST(test_float_get_neg_zero,		"negative zero floating-point storage"),
+	TEST(test_float_get_small,		"very small floating-point storage"),
+	TEST(test_float_get_too_small,		"too small floating-point storage"),
 
-	TEST(test_istr_0,		"empty immediate string construction"),
-	TEST(test_istr_1,		"immediate string construction with 1 character"),
-	TEST(test_istr_7,		"immediate string construction with 7 characters"),
-	TEST(test_istr_8,		"immediate string construction with 8 characters"),
-	TEST(test_istr_len_0,		"empty immediate string length"),
-	TEST(test_istr_len_1,		"immediate string length with 1 character"),
-	TEST(test_istr_len_7,		"immediate string length with 7 characters"),
-	TEST(test_istr_len_8,		"immediate string length with 8 characters"),
-	TEST(test_istr_get_0,		"empty immediate string storage"),
-	TEST(test_istr_get_1,		"immediate string storage with 1 character"),
-	TEST(test_istr_get_7,		"immediate string storage with 7 characters"),
-	TEST(test_istr_get_8,		"immediate string storage with 8 characters"),
+	TEST(test_istr_0,			"empty immediate string construction"),
+	TEST(test_istr_1,			"immediate string construction with 1 character"),
+	TEST(test_istr_7,			"immediate string construction with 7 characters"),
+	TEST(test_istr_8,			"immediate string construction with 8 characters"),
+	TEST(test_istr_len_0,			"empty immediate string length"),
+	TEST(test_istr_len_1,			"immediate string length with 1 character"),
+	TEST(test_istr_len_7,			"immediate string length with 7 characters"),
+	TEST(test_istr_len_8,			"immediate string length with 8 characters"),
+	TEST(test_istr_get_0,			"empty immediate string storage"),
+	TEST(test_istr_get_1,			"immediate string storage with 1 character"),
+	TEST(test_istr_get_7,			"immediate string storage with 7 characters"),
+	TEST(test_istr_get_8,			"immediate string storage with 8 characters"),
 
-	TEST(test_bstr_0,		"empty boxed string construction"),
-	TEST(test_bstr_1,		"boxed string construction with 1 character"),
-	TEST(test_bstr_1,		"boxed string construction with 8 character"),
-	TEST(test_bstr_65536,		"boxed string construction with 65536 characters"),
-	TEST(test_bstr_len_0,		"empty boxed string length"),
-	TEST(test_bstr_len_1,		"boxed string length with 1 character"),
-	TEST(test_bstr_len_1,		"boxed string length with 8 character"),
-	TEST(test_bstr_len_65536,	"boxed string length with 65536 characters"),
-	TEST(test_bstr_get_0,		"empty boxed string storage"),
-	TEST(test_bstr_get_1,		"boxed string storage with 1 character"),
-	TEST(test_bstr_get_1,		"boxed string storage with 8 character"),
-	TEST(test_bstr_get_65536,	"boxed string storage with 65536 characters"),
+	TEST(test_bstr_0,			"empty boxed string construction"),
+	TEST(test_bstr_1,			"boxed string construction with 1 character"),
+	TEST(test_bstr_1,			"boxed string construction with 8 character"),
+	TEST(test_bstr_65536,			"boxed string construction with 65536 characters"),
+	TEST(test_bstr_len_0,			"empty boxed string length"),
+	TEST(test_bstr_len_1,			"boxed string length with 1 character"),
+	TEST(test_bstr_len_1,			"boxed string length with 8 character"),
+	TEST(test_bstr_len_65536,		"boxed string length with 65536 characters"),
+	TEST(test_bstr_get_0,			"empty boxed string storage"),
+	TEST(test_bstr_get_1,			"boxed string storage with 1 character"),
+	TEST(test_bstr_get_1,			"boxed string storage with 8 character"),
+	TEST(test_bstr_get_65536,		"boxed string storage with 65536 characters"),
 
-	TEST(test_barr_alloc_0,		"empty boxed array construction"),
-	TEST(test_barr_alloc_1,		"boxed array construction of size 1"),
-	TEST(test_barr_alloc_8,		"boxed array construction of size 8"),
-	TEST(test_barr_alloc_65536,	"boxed array construction of size 65536"),
-	TEST(test_barr_empty_cnt_0,	"empty boxed array count"),
-	TEST(test_barr_empty_cnt_1,	"boxed array count with capacity 1"),
-	TEST(test_barr_empty_cnt_8,	"boxed array count with capacity 8"),
-	TEST(test_barr_empty_cnt_65536,	"boxed array count with capacity 65536"),
-	TEST(test_barr_empty_cap_0,	"empty boxed array capacity"),
-	TEST(test_barr_empty_cap_1,	"boxed array capacity with capacity 1"),
-	TEST(test_barr_empty_cap_8,	"boxed array capacity with capacity 8"),
-	TEST(test_barr_empty_cap_65536,	"boxed array capacity with capacity 65536"),
-	TEST(test_barr_empty_get_1,	"empty boxed array element test with capacity 1"),
-	TEST(test_barr_empty_get_8,	"empty boxed array element test with capacity 8"),
-	TEST(test_barr_empty_get_65536,	"empty boxed array element test with capacity 65536"),
-	TEST(test_barr_set_get_1,	"boxed array element storage with 1 element"),
-	TEST(test_barr_set_get_8,	"boxed array element storage with 8 elements"),
-	TEST(test_barr_set_get_65536,	"boxed array element storage with 65536 elements"),
+	TEST(test_barr_alloc_0,			"empty boxed array construction"),
+	TEST(test_barr_alloc_1,			"boxed array construction of size 1"),
+	TEST(test_barr_alloc_8,			"boxed array construction of size 8"),
+	TEST(test_barr_alloc_65536,		"boxed array construction of size 65536"),
+	TEST(test_barr_empty_cnt_0,		"empty boxed array count"),
+	TEST(test_barr_empty_cnt_1,		"boxed array count with capacity 1"),
+	TEST(test_barr_empty_cnt_8,		"boxed array count with capacity 8"),
+	TEST(test_barr_empty_cnt_65536,		"boxed array count with capacity 65536"),
+	TEST(test_barr_empty_cap_0,		"empty boxed array capacity"),
+	TEST(test_barr_empty_cap_1,		"boxed array capacity with capacity 1"),
+	TEST(test_barr_empty_cap_8,		"boxed array capacity with capacity 8"),
+	TEST(test_barr_empty_cap_65536,		"boxed array capacity with capacity 65536"),
+	TEST(test_barr_empty_get_1,		"empty boxed array element test with capacity 1"),
+	TEST(test_barr_empty_get_8,		"empty boxed array element test with capacity 8"),
+	TEST(test_barr_empty_get_65536,		"empty boxed array element test with capacity 65536"),
+	TEST(test_barr_set_get_1,		"boxed array element storage with 1 element"),
+	TEST(test_barr_set_get_8,		"boxed array element storage with 8 elements"),
+	TEST(test_barr_set_get_65536,		"boxed array element storage with 65536 elements"),
+	TEST(test_barr_set_free_get_1,		"boxed array freed element storage with 1 element"),
+	TEST(test_barr_set_free_get_8,		"boxed array freed element storage with 8 elements"),
+	TEST(test_barr_set_free_get_65536,	"boxed array freed element storage with 65536 elements")
 };
 
 #define NTESTS (sizeof(TESTS) / sizeof(TESTS[0]))
@@ -523,16 +529,16 @@ MK_BARR_EMPTY_GET_TEST(1)
 MK_BARR_EMPTY_GET_TEST(8)
 MK_BARR_EMPTY_GET_TEST(65536)
 
-#define MK_BARR_SET_GET_TEST(CAP)						\
+#define MK_BARR_SET_GET_TEST(CAP, SET)						\
 int										\
-test_barr_set_get_ ## CAP(void)							\
+test_barr_ ## SET ## _get_ ## CAP(void)						\
 {										\
 	int res = 1;								\
 	size_t i;								\
 	j64_t k;								\
 	j64_t j = j64_barr_alloc(CAP);						\
 	for (i = 0; i < CAP; i++)						\
-		j64_barr_set(j, j64_int((int64_t)i), i);			\
+		j64_barr_ ## SET(j, j64_int((int64_t)i), i);			\
 	for (i = 0; i < CAP; i++) {						\
 		k = j64_barr_get(j, i);						\
 		if (!j64_is_int(k) || j64_int_get(k) != (int64_t)i) {		\
@@ -544,6 +550,9 @@ test_barr_set_get_ ## CAP(void)							\
 	return res;								\
 }
 
-MK_BARR_SET_GET_TEST(1)
-MK_BARR_SET_GET_TEST(8)
-MK_BARR_SET_GET_TEST(65536)
+MK_BARR_SET_GET_TEST(1, set)
+MK_BARR_SET_GET_TEST(8, set)
+MK_BARR_SET_GET_TEST(65536, set)
+MK_BARR_SET_GET_TEST(1, set_free)
+MK_BARR_SET_GET_TEST(8, set_free)
+MK_BARR_SET_GET_TEST(65536, set_free)

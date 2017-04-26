@@ -72,6 +72,9 @@ typedef union {
 
 #define J64_TYPE_GET(j)		((j).w & J64__TYPE_MASK)
 
+/* Forward declaration */
+J64_API void j64_free(j64_t);
+
 /*
  * Literal subtype constants and functions
  */
@@ -461,10 +464,38 @@ j64_barr_set(j64_t j, j64_t k, size_t i)
 }
 
 J64_API void
+j64_barr_set_free(j64_t j, j64_t k, size_t i)
+{
+	struct j64__barr_hdr *hdr;
+
+	j64__assert(j64_is_barr(j));
+	hdr = J64__BARR_HDR(j);
+	j64__assert(i < hdr->cap);
+	j64_free((&hdr->buf)[i]);
+	(&hdr->buf)[i] = k;
+}
+
+J64_API void
 j64_barr_free(j64_t j)
 {
 	j64__assert(j64_is_barr(j));
 	J64_FREE(J64__BARR_HDR(j));
+}
+
+/*
+ * Polymorphic free
+ */
+J64_API void
+j64_free(j64_t j)
+{
+	switch (J64_TYPE_GET(j)) {
+	case J64_TYPE_BSTR:
+		j64_bstr_free(j);
+		break;
+	case J64_TYPE_BARR:
+		j64_barr_free(j);
+		break;
+	}
 }
 
 /*
