@@ -62,6 +62,7 @@ int test_true(void);
 int test_bool_false(void);
 int test_bool_true(void);
 int test_estr(void);
+int test_earr(void);
 
 int test_int_zero(void);
 int test_int_one(void);
@@ -115,6 +116,25 @@ int test_bstr_get_1(void);
 int test_bstr_get_8(void);
 int test_bstr_get_65536(void);
 
+int test_barr_alloc_0(void);
+int test_barr_alloc_1(void);
+int test_barr_alloc_8(void);
+int test_barr_alloc_65536(void);
+int test_barr_empty_cnt_0(void);
+int test_barr_empty_cnt_1(void);
+int test_barr_empty_cnt_8(void);
+int test_barr_empty_cnt_65536(void);
+int test_barr_empty_cap_0(void);
+int test_barr_empty_cap_1(void);
+int test_barr_empty_cap_8(void);
+int test_barr_empty_cap_65536(void);
+int test_barr_empty_get_1(void);
+int test_barr_empty_get_8(void);
+int test_barr_empty_get_65536(void);
+int test_barr_set_get_1(void);
+int test_barr_set_get_8(void);
+int test_barr_set_get_65536(void);
+
 /* Test function and description list */
 static const struct test TESTS[] = {
 	TEST(test_undef,		"undefined literal construction"),
@@ -124,6 +144,7 @@ static const struct test TESTS[] = {
 	TEST(test_bool_false,		"boolean literal construction with false"),
 	TEST(test_bool_true,		"boolean literal construction with true"),
 	TEST(test_estr,			"empty string literal construction"),
+	TEST(test_earr,			"empty array literal construction"),
 
 	TEST(test_int_zero,		"zero integer construction"),
 	TEST(test_int_one,		"positive integer constructon"),
@@ -175,7 +196,26 @@ static const struct test TESTS[] = {
 	TEST(test_bstr_get_0,		"empty boxed string storage"),
 	TEST(test_bstr_get_1,		"boxed string storage with 1 character"),
 	TEST(test_bstr_get_1,		"boxed string storage with 8 character"),
-	TEST(test_bstr_get_65536,	"boxed string storage with 65536 characters")
+	TEST(test_bstr_get_65536,	"boxed string storage with 65536 characters"),
+
+	TEST(test_barr_alloc_0,		"empty boxed array construction"),
+	TEST(test_barr_alloc_1,		"boxed array construction of size 1"),
+	TEST(test_barr_alloc_8,		"boxed array construction of size 8"),
+	TEST(test_barr_alloc_65536,	"boxed array construction of size 65536"),
+	TEST(test_barr_empty_cnt_0,	"empty boxed array count"),
+	TEST(test_barr_empty_cnt_1,	"boxed array count with capacity 1"),
+	TEST(test_barr_empty_cnt_8,	"boxed array count with capacity 8"),
+	TEST(test_barr_empty_cnt_65536,	"boxed array count with capacity 65536"),
+	TEST(test_barr_empty_cap_0,	"empty boxed array capacity"),
+	TEST(test_barr_empty_cap_1,	"boxed array capacity with capacity 1"),
+	TEST(test_barr_empty_cap_8,	"boxed array capacity with capacity 8"),
+	TEST(test_barr_empty_cap_65536,	"boxed array capacity with capacity 65536"),
+	TEST(test_barr_empty_get_1,	"empty boxed array element test with capacity 1"),
+	TEST(test_barr_empty_get_8,	"empty boxed array element test with capacity 8"),
+	TEST(test_barr_empty_get_65536,	"empty boxed array element test with capacity 65536"),
+	TEST(test_barr_set_get_1,	"boxed array element storage with 1 element"),
+	TEST(test_barr_set_get_8,	"boxed array element storage with 8 elements"),
+	TEST(test_barr_set_get_65536,	"boxed array element storage with 65536 elements"),
 };
 
 #define NTESTS (sizeof(TESTS) / sizeof(TESTS[0]))
@@ -209,6 +249,7 @@ MK_LIT_TEST(null)
 MK_LIT_TEST(false)
 MK_LIT_TEST(true)
 MK_LIT_TEST(estr)
+MK_LIT_TEST(earr)
 
 #define MK_BOOL_TEST(TYPE, N)							\
 int										\
@@ -406,3 +447,83 @@ MK_BSTR_GET_TEST(0)
 MK_BSTR_GET_TEST(1)
 MK_BSTR_GET_TEST(8)
 MK_BSTR_GET_TEST(65536)
+
+#define MK_BARR_ALLOC_TEST(CAP)							\
+int										\
+test_barr_alloc_ ## CAP(void)							\
+{										\
+	j64_t j = j64_barr_alloc(CAP);                                          \
+	return j64_is_barr(j);                                                  \
+} /* TODO: free */
+
+MK_BARR_ALLOC_TEST(0)
+MK_BARR_ALLOC_TEST(1)
+MK_BARR_ALLOC_TEST(8)
+MK_BARR_ALLOC_TEST(65536)
+
+#define MK_BARR_EMPTY_CNT_TEST(CAP)						\
+int										\
+test_barr_empty_cnt_ ## CAP(void)						\
+{										\
+	j64_t j = j64_barr_alloc(CAP);						\
+	return j64_barr_cnt(j) == 0;						\
+}
+
+MK_BARR_EMPTY_CNT_TEST(0)
+MK_BARR_EMPTY_CNT_TEST(1)
+MK_BARR_EMPTY_CNT_TEST(8)
+MK_BARR_EMPTY_CNT_TEST(65536)
+
+#define MK_BARR_EMPTY_CAP_TEST(CAP)						\
+int										\
+test_barr_empty_cap_ ## CAP(void)						\
+{										\
+	j64_t j = j64_barr_alloc(CAP);						\
+	return j64_barr_cap(j) == CAP;						\
+}
+
+MK_BARR_EMPTY_CAP_TEST(0)
+MK_BARR_EMPTY_CAP_TEST(1)
+MK_BARR_EMPTY_CAP_TEST(8)
+MK_BARR_EMPTY_CAP_TEST(65536)
+
+#define MK_BARR_EMPTY_GET_TEST(CAP)						\
+int										\
+test_barr_empty_get_ ## CAP(void)						\
+{										\
+	int res = 1;								\
+	size_t i;								\
+	j64_t j = j64_barr_alloc(CAP);						\
+	for (i = 0; i < j64_barr_cap(j); i++)					\
+		if (!j64_is_undef(j64_barr_get(j, i)))				\
+			res = 0;						\
+	return res;								\
+}
+
+MK_BARR_EMPTY_GET_TEST(1)
+MK_BARR_EMPTY_GET_TEST(8)
+MK_BARR_EMPTY_GET_TEST(65536)
+
+#define MK_BARR_SET_GET_TEST(CAP)						\
+int										\
+test_barr_set_get_ ## CAP(void)							\
+{										\
+	int res = 1;								\
+	size_t i;								\
+	j64_t k;								\
+	j64_t j = j64_barr_alloc(CAP);						\
+	for (i = 0; i < CAP; i++)						\
+		j64_barr_set(j, j64_int((int64_t)i), i);			\
+	for (i = 0; i < CAP; i++) {						\
+		k = j64_barr_get(j, i);						\
+		if (!j64_is_int(k) || j64_int_get(k) != (int64_t)i) {		\
+			res = 0;                                                \
+			break;                                                  \
+		}                                                               \
+	}									\
+	return res;								\
+}
+
+MK_BARR_SET_GET_TEST(1)
+MK_BARR_SET_GET_TEST(8)
+MK_BARR_SET_GET_TEST(65536)

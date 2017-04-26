@@ -80,6 +80,7 @@ typedef union {
 #define J64__TYPE_LIT_SIZE	(J64__TYPE_LIT_OFFS + 3)
 #define J64__TYPE_LIT_MASK	((1 << J64__TYPE_LIT_SIZE) - 1)
 
+/* undefined is all zero by design */
 #define J64_TYPE_LIT_UNDEF	((0x0 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
 #define J64_TYPE_LIT_NULL	((0x1 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
 #define J64_TYPE_LIT_FALSE	((0x2 << J64__TYPE_LIT_OFFS) | J64_TYPE_LIT)
@@ -167,6 +168,20 @@ J64_API int
 j64_is_estr(j64_t j)
 {
 	return j.w == J64_TYPE_LIT_ESTR;
+}
+
+J64_API j64_t
+j64_earr(void)
+{
+	j64_t j = J64__INIT;
+	j.w = J64_TYPE_LIT_EARR;
+	return j;
+}
+
+J64_API int
+j64_is_earr(j64_t j)
+{
+	return j.w == J64_TYPE_LIT_EARR;
 }
 
 /*
@@ -306,6 +321,7 @@ j64_bstr(const void *buf, size_t len)
 	struct j64__bstr_hdr *hdr;
 
 	j64__assert(buf != NULL);
+	j64__assert(len < SIZE_MAX - J64__BSTR_HDR_SIZEOF);
 
 	hdr = J64_MALLOC(J64__BSTR_HDR_SIZEOF + len);
 	if (hdr == NULL)
@@ -350,6 +366,91 @@ j64_bstr_get(j64_t j, void *buf, size_t len)
 	memcpy(buf, &hdr->buf, n);
 
 	return n;
+}
+
+/*
+ * Boxed array
+ */
+
+struct j64__barr_hdr {
+	size_t	cnt;
+	size_t	cap;
+	j64_t	buf;
+};
+
+#define J64__BARR_HDR(j)	((struct j64__barr_hdr *)((j).p & (uintptr_t)J64__PTR_MASK))
+#define J64__BARR_HDR_SIZEOF	(offsetof(struct j64__barr_hdr, buf))
+
+J64_API j64_t
+j64_barr_alloc(size_t cap)
+{
+	j64_t j = J64__INIT;
+	struct j64__barr_hdr *hdr;
+	size_t i;
+
+	j64__assert(cap <= (SIZE_MAX / sizeof(j64_t)) - J64__BARR_HDR_SIZEOF);
+
+	/* TODO: check overflow */
+	hdr = malloc(J64__BARR_HDR_SIZEOF + cap * sizeof(j64_t));
+	if (hdr == NULL)
+		return j64_undef();
+
+	hdr->cnt = 0;
+	hdr->cap = cap;
+	for (i = 0; i < cap; i++)
+		(&hdr->buf)[i] = j64_undef();
+
+	j.p = (uintptr_t)hdr;
+	j.w |= J64_TYPE_BARR;
+
+	return j;
+}
+
+J64_API int
+j64_is_barr(j64_t j)
+{
+	return J64_TYPE_GET(j) == J64_TYPE_BARR;
+}
+
+J64_API size_t
+j64_barr_cnt(j64_t j)
+{
+	struct j64__barr_hdr *hdr;
+	j64__assert(j64_is_barr(j));
+	hdr = J64__BARR_HDR(j);
+	return hdr->cnt;
+}
+
+J64_API size_t
+j64_barr_cap(j64_t j)
+{
+	struct j64__barr_hdr *hdr;
+	j64__assert(j64_is_barr(j));
+	hdr = J64__BARR_HDR(j);
+	return hdr->cap;
+}
+
+J64_API j64_t
+j64_barr_get(j64_t j, size_t i)
+{
+	struct j64__barr_hdr *hdr;
+
+	j64__assert(j64_is_barr(j));
+	hdr = J64__BARR_HDR(j);
+	j64__assert(i < hdr->cap;);
+
+	return (&hdr->buf)[i];
+}
+
+J64_API void
+j64_barr_set(j64_t j, j64_t k, size_t i)
+{
+	struct j64__barr_hdr *hdr;
+
+	j64__assert(j64_is_barr(j));
+	hdr = J64__BARR_HDR(j);
+	j64__assert(i < hdr->cap);
+	(&hdr->buf)[i] = k;
 }
 
 /*
