@@ -120,6 +120,10 @@ int test_barr_alloc_0(void);
 int test_barr_alloc_1(void);
 int test_barr_alloc_8(void);
 int test_barr_alloc_65536(void);
+int test_barr_alloc_cap_0(void);
+int test_barr_alloc_cap_1(void);
+int test_barr_alloc_cap_8(void);
+int test_barr_alloc_cap_65536(void);
 int test_barr_realloc_0_0(void);
 int test_barr_realloc_0_1(void);
 int test_barr_realloc_0_65536(void);
@@ -129,10 +133,6 @@ int test_barr_realloc_1_65536(void);
 int test_barr_realloc_65536_0(void);
 int test_barr_realloc_65536_1(void);
 int test_barr_realloc_65536_65536(void);
-int test_barr_alloc_cap_0(void);
-int test_barr_alloc_cap_1(void);
-int test_barr_alloc_cap_8(void);
-int test_barr_alloc_cap_65536(void);
 int test_barr_set_get_1(void);
 int test_barr_set_get_8(void);
 int test_barr_set_get_65536(void);
@@ -207,6 +207,10 @@ static const struct test TESTS[] = {
 	TEST(test_barr_alloc_1,			"boxed array construction of size 1"),
 	TEST(test_barr_alloc_8,			"boxed array construction of size 8"),
 	TEST(test_barr_alloc_65536,		"boxed array construction of size 65536"),
+	TEST(test_barr_alloc_cap_0,		"empty boxed array capacity"),
+	TEST(test_barr_alloc_cap_1,		"boxed array capacity with capacity 1"),
+	TEST(test_barr_alloc_cap_8,		"boxed array capacity with capacity 8"),
+	TEST(test_barr_alloc_cap_65536,		"boxed array capacity with capacity 65536"),
 	TEST(test_barr_realloc_0_0,		"boxed array reallocation from 0 to 0"),
 	TEST(test_barr_realloc_0_1,		"boxed array reallocation from 0 to 1"),
 	TEST(test_barr_realloc_0_65536,		"boxed array reallocation from 0 to 65536"),
@@ -216,10 +220,6 @@ static const struct test TESTS[] = {
 	TEST(test_barr_realloc_65536_0,		"boxed array reallocation from 65536 to 0"),
 	TEST(test_barr_realloc_65536_1,		"boxed array reallocation from 65536 to 1"),
 	TEST(test_barr_realloc_65536_65536,	"boxed array reallocation from 65536 to 65536"),
-	TEST(test_barr_alloc_cap_0,		"empty boxed array capacity"),
-	TEST(test_barr_alloc_cap_1,		"boxed array capacity with capacity 1"),
-	TEST(test_barr_alloc_cap_8,		"boxed array capacity with capacity 8"),
-	TEST(test_barr_alloc_cap_65536,		"boxed array capacity with capacity 65536"),
 	TEST(test_barr_set_get_1,		"boxed array element storage with 1 element"),
 	TEST(test_barr_set_get_8,		"boxed array element storage with 8 elements"),
 	TEST(test_barr_set_get_65536,		"boxed array element storage with 65536 elements"),
