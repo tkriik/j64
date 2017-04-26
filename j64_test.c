@@ -129,13 +129,10 @@ int test_barr_realloc_1_65536(void);
 int test_barr_realloc_65536_0(void);
 int test_barr_realloc_65536_1(void);
 int test_barr_realloc_65536_65536(void);
-int test_barr_empty_cap_0(void);
-int test_barr_empty_cap_1(void);
-int test_barr_empty_cap_8(void);
-int test_barr_empty_cap_65536(void);
-int test_barr_empty_get_1(void);
-int test_barr_empty_get_8(void);
-int test_barr_empty_get_65536(void);
+int test_barr_alloc_cap_0(void);
+int test_barr_alloc_cap_1(void);
+int test_barr_alloc_cap_8(void);
+int test_barr_alloc_cap_65536(void);
 int test_barr_set_get_1(void);
 int test_barr_set_get_8(void);
 int test_barr_set_get_65536(void);
@@ -219,13 +216,10 @@ static const struct test TESTS[] = {
 	TEST(test_barr_realloc_65536_0,		"boxed array reallocation from 65536 to 0"),
 	TEST(test_barr_realloc_65536_1,		"boxed array reallocation from 65536 to 1"),
 	TEST(test_barr_realloc_65536_65536,	"boxed array reallocation from 65536 to 65536"),
-	TEST(test_barr_empty_cap_0,		"empty boxed array capacity"),
-	TEST(test_barr_empty_cap_1,		"boxed array capacity with capacity 1"),
-	TEST(test_barr_empty_cap_8,		"boxed array capacity with capacity 8"),
-	TEST(test_barr_empty_cap_65536,		"boxed array capacity with capacity 65536"),
-	TEST(test_barr_empty_get_1,		"empty boxed array element test with capacity 1"),
-	TEST(test_barr_empty_get_8,		"empty boxed array element test with capacity 8"),
-	TEST(test_barr_empty_get_65536,		"empty boxed array element test with capacity 65536"),
+	TEST(test_barr_alloc_cap_0,		"empty boxed array capacity"),
+	TEST(test_barr_alloc_cap_1,		"boxed array capacity with capacity 1"),
+	TEST(test_barr_alloc_cap_8,		"boxed array capacity with capacity 8"),
+	TEST(test_barr_alloc_cap_65536,		"boxed array capacity with capacity 65536"),
 	TEST(test_barr_set_get_1,		"boxed array element storage with 1 element"),
 	TEST(test_barr_set_get_8,		"boxed array element storage with 8 elements"),
 	TEST(test_barr_set_get_65536,		"boxed array element storage with 65536 elements"),
@@ -489,6 +483,22 @@ MK_BARR_ALLOC_TEST(1)
 MK_BARR_ALLOC_TEST(8)
 MK_BARR_ALLOC_TEST(65536)
 
+#define MK_BARR_ALLOC_CAP_TEST(CAP)						\
+int										\
+test_barr_alloc_cap_ ## CAP(void)						\
+{										\
+	int res;								\
+	j64_t j = j64_barr_alloc(CAP);						\
+	res = j64_barr_cap(j) == CAP;						\
+	j64_barr_free(j);							\
+	return res;								\
+}
+
+MK_BARR_ALLOC_CAP_TEST(0)
+MK_BARR_ALLOC_CAP_TEST(1)
+MK_BARR_ALLOC_CAP_TEST(8)
+MK_BARR_ALLOC_CAP_TEST(65536)
+
 #define MK_BARR_REALLOC_TEST(CAP, NEW_CAP)					\
 int										\
 test_barr_realloc_ ## CAP ## _ ## NEW_CAP(void)					\
@@ -510,40 +520,6 @@ MK_BARR_REALLOC_TEST(1, 65536)
 MK_BARR_REALLOC_TEST(65536, 0)
 MK_BARR_REALLOC_TEST(65536, 1)
 MK_BARR_REALLOC_TEST(65536, 65536)
-
-#define MK_BARR_EMPTY_CAP_TEST(CAP)						\
-int										\
-test_barr_empty_cap_ ## CAP(void)						\
-{										\
-	int res;								\
-	j64_t j = j64_barr_alloc(CAP);						\
-	res = j64_barr_cap(j) == CAP;						\
-	j64_barr_free(j);							\
-	return res;								\
-}
-
-MK_BARR_EMPTY_CAP_TEST(0)
-MK_BARR_EMPTY_CAP_TEST(1)
-MK_BARR_EMPTY_CAP_TEST(8)
-MK_BARR_EMPTY_CAP_TEST(65536)
-
-#define MK_BARR_EMPTY_GET_TEST(CAP)						\
-int										\
-test_barr_empty_get_ ## CAP(void)						\
-{										\
-	int res = 1;								\
-	size_t i;								\
-	j64_t j = j64_barr_alloc(CAP);						\
-	for (i = 0; i < j64_barr_cap(j); i++)					\
-		if (!j64_is_undef(j64_barr_get(j, i)))				\
-			res = 0;						\
-	j64_barr_free(j);							\
-	return res;								\
-}
-
-MK_BARR_EMPTY_GET_TEST(1)
-MK_BARR_EMPTY_GET_TEST(8)
-MK_BARR_EMPTY_GET_TEST(65536)
 
 #define MK_BARR_SET_GET_TEST(CAP, SET)						\
 int										\
