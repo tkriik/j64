@@ -401,12 +401,15 @@ MK_ISTR_GET_TEST("12345678", 8, "1234567", 7)
 int										\
 test_bstr_ ## LEN(void)								\
 {										\
+	int res;								\
 	j64_t j;								\
 	uint8_t buf[LEN + 1];							\
 	memset(buf, '\0', sizeof(buf));						\
 	j = j64_bstr(buf, LEN);							\
-	return j64_is_bstr(j);							\
-} /* TODO: free */
+	res = j64_is_bstr(j);							\
+	j64_bstr_free(j);							\
+	return res;								\
+}
 
 MK_BSTR_TEST(0)
 MK_BSTR_TEST(1)
@@ -417,11 +420,14 @@ MK_BSTR_TEST(65536)
 int										\
 test_bstr_len_ ## LEN(void)							\
 {										\
+	int res;								\
 	j64_t j;                                                                \
 	uint8_t buf[LEN + 1];                                                   \
 	memset(buf, '\0', LEN);							\
 	j = j64_bstr(buf, LEN);							\
-	return j64_bstr_len(j) == LEN;                                          \
+	res = j64_bstr_len(j) == LEN;						\
+	j64_bstr_free(j);							\
+	return res;								\
 }
 
 MK_BSTR_LEN_TEST(0)
@@ -433,6 +439,7 @@ MK_BSTR_LEN_TEST(65536)
 int										\
 test_bstr_get_ ## LEN(void)							\
 {										\
+	int res;								\
 	j64_t j;								\
 	size_t n;                                                               \
 	uint8_t src[LEN + 1];                                                   \
@@ -440,7 +447,9 @@ test_bstr_get_ ## LEN(void)							\
 	memset(src, 0xFE, LEN);							\
 	j = j64_bstr(src, LEN);                                         	\
 	n = j64_bstr_get(j, dst, LEN);                                  	\
-	return memcmp(src, dst, LEN) == 0 && n == LEN;                          \
+	res = memcmp(src, dst, LEN) == 0 && n == LEN;				\
+	j64_bstr_free(j);							\
+	return res;								\
 }
 
 MK_BSTR_GET_TEST(0)
@@ -452,9 +461,12 @@ MK_BSTR_GET_TEST(65536)
 int										\
 test_barr_alloc_ ## CAP(void)							\
 {										\
+	int res;								\
 	j64_t j = j64_barr_alloc(CAP);                                          \
-	return j64_is_barr(j);                                                  \
-} /* TODO: free */
+	res = j64_is_barr(j);							\
+	j64_barr_free(j);							\
+	return res;								\
+}
 
 MK_BARR_ALLOC_TEST(0)
 MK_BARR_ALLOC_TEST(1)
@@ -465,8 +477,11 @@ MK_BARR_ALLOC_TEST(65536)
 int										\
 test_barr_empty_cnt_ ## CAP(void)						\
 {										\
+	int res;								\
 	j64_t j = j64_barr_alloc(CAP);						\
-	return j64_barr_cnt(j) == 0;						\
+	res = j64_barr_cnt(j) == 0;						\
+	j64_barr_free(j);							\
+	return res;								\
 }
 
 MK_BARR_EMPTY_CNT_TEST(0)
@@ -478,8 +493,11 @@ MK_BARR_EMPTY_CNT_TEST(65536)
 int										\
 test_barr_empty_cap_ ## CAP(void)						\
 {										\
+	int res;								\
 	j64_t j = j64_barr_alloc(CAP);						\
-	return j64_barr_cap(j) == CAP;						\
+	res = j64_barr_cap(j) == CAP;						\
+	j64_barr_free(j);							\
+	return res;								\
 }
 
 MK_BARR_EMPTY_CAP_TEST(0)
@@ -497,6 +515,7 @@ test_barr_empty_get_ ## CAP(void)						\
 	for (i = 0; i < j64_barr_cap(j); i++)					\
 		if (!j64_is_undef(j64_barr_get(j, i)))				\
 			res = 0;						\
+	j64_barr_free(j);							\
 	return res;								\
 }
 
@@ -521,6 +540,7 @@ test_barr_set_get_ ## CAP(void)							\
 			break;                                                  \
 		}                                                               \
 	}									\
+	j64_barr_free(j);							\
 	return res;								\
 }
 

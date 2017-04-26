@@ -368,6 +368,13 @@ j64_bstr_get(j64_t j, void *buf, size_t len)
 	return n;
 }
 
+J64_API void
+j64_bstr_free(j64_t j)
+{
+	j64__assert(j64_is_bstr(j));
+	J64_FREE(J64__BSTR_HDR(j));
+}
+
 /*
  * Boxed array
  */
@@ -451,6 +458,13 @@ j64_barr_set(j64_t j, j64_t k, size_t i)
 	hdr = J64__BARR_HDR(j);
 	j64__assert(i < hdr->cap);
 	(&hdr->buf)[i] = k;
+}
+
+J64_API void
+j64_barr_free(j64_t j)
+{
+	j64__assert(j64_is_barr(j));
+	J64_FREE(J64__BARR_HDR(j));
 }
 
 /*
