@@ -389,6 +389,9 @@ struct j64__barr_hdr {
 
 #define J64__BARR_HDR(j)	((struct j64__barr_hdr *)((j).p & (uintptr_t)J64__PTR_MASK))
 #define J64__BARR_HDR_SIZEOF	(offsetof(struct j64__barr_hdr, buf))
+#define J64__BARR_HDR_CAP_MAX	((SIZE_MAX - J64__BARR_HDR_SIZEOF) / sizeof(j64_t))
+
+#define J64_BARR_CAP_MAX	J64__BARR_HDR_CAP_MAX
 
 J64_API j64_t
 j64_barr_alloc(size_t cap)
@@ -398,7 +401,8 @@ j64_barr_alloc(size_t cap)
 	size_t i;
 
 	/* Overflow check */
-	j64__assert(cap <= (SIZE_MAX / sizeof(j64_t)) - J64__BARR_HDR_SIZEOF);
+	if (J64__BARR_HDR_CAP_MAX < cap)
+		return j64_undef();
 
 	hdr = malloc(J64__BARR_HDR_SIZEOF + cap * sizeof(j64_t));
 	if (hdr == NULL)
@@ -432,8 +436,10 @@ j64_barr_realloc(j64_t j, size_t new_cap)
 	size_t i;
 
 	j64__assert(j64_is_barr(j));
+
 	/* Overflow check */
-	j64__assert(cap <= (SIZE_MAX / sizeof(j64_t)) - J64__BARR_HDR_SIZEOF);
+	if (J64__BARR_HDR_CAP_MAX < new_cap)
+		return j64_undef();
 
 	hdr = J64__BARR_HDR(j);
 	cap = hdr->cap;

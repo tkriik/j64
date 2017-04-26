@@ -120,6 +120,7 @@ int test_barr_alloc_0(void);
 int test_barr_alloc_1(void);
 int test_barr_alloc_8(void);
 int test_barr_alloc_65536(void);
+int test_barr_alloc_overflow(void);
 int test_barr_alloc_cap_0(void);
 int test_barr_alloc_cap_1(void);
 int test_barr_alloc_cap_8(void);
@@ -133,6 +134,7 @@ int test_barr_realloc_1_65536(void);
 int test_barr_realloc_65536_0(void);
 int test_barr_realloc_65536_1(void);
 int test_barr_realloc_65536_65536(void);
+int test_barr_realloc_overflow(void);
 int test_barr_set_get_1(void);
 int test_barr_set_get_8(void);
 int test_barr_set_get_65536(void);
@@ -204,9 +206,10 @@ static const struct test TESTS[] = {
 	TEST(test_bstr_get_65536,		"boxed string storage with 65536 characters"),
 
 	TEST(test_barr_alloc_0,			"empty boxed array construction"),
-	TEST(test_barr_alloc_1,			"boxed array construction of size 1"),
-	TEST(test_barr_alloc_8,			"boxed array construction of size 8"),
-	TEST(test_barr_alloc_65536,		"boxed array construction of size 65536"),
+	TEST(test_barr_alloc_1,			"boxed array construction of capacity 1"),
+	TEST(test_barr_alloc_8,			"boxed array construction of capacity 8"),
+	TEST(test_barr_alloc_65536,		"boxed array construction of capacity 65536"),
+	TEST(test_barr_alloc_overflow,		"boxed array construction with overflowed capacity"),
 	TEST(test_barr_alloc_cap_0,		"empty boxed array capacity"),
 	TEST(test_barr_alloc_cap_1,		"boxed array capacity with capacity 1"),
 	TEST(test_barr_alloc_cap_8,		"boxed array capacity with capacity 8"),
@@ -220,6 +223,7 @@ static const struct test TESTS[] = {
 	TEST(test_barr_realloc_65536_0,		"boxed array reallocation from 65536 to 0"),
 	TEST(test_barr_realloc_65536_1,		"boxed array reallocation from 65536 to 1"),
 	TEST(test_barr_realloc_65536_65536,	"boxed array reallocation from 65536 to 65536"),
+	TEST(test_barr_realloc_overflow,	"boxed array reallocation with overflowed capacity"),
 	TEST(test_barr_set_get_1,		"boxed array element storage with 1 element"),
 	TEST(test_barr_set_get_8,		"boxed array element storage with 8 elements"),
 	TEST(test_barr_set_get_65536,		"boxed array element storage with 65536 elements"),
@@ -483,6 +487,16 @@ MK_BARR_ALLOC_TEST(1)
 MK_BARR_ALLOC_TEST(8)
 MK_BARR_ALLOC_TEST(65536)
 
+int
+test_barr_alloc_overflow(void)
+{
+	int res;
+	j64_t j = j64_barr_alloc(J64_BARR_CAP_MAX + 1);
+	res = j64_is_undef(j);
+	j64_free(j);
+	return res;
+}
+
 #define MK_BARR_ALLOC_CAP_TEST(CAP)						\
 int										\
 test_barr_alloc_cap_ ## CAP(void)						\
@@ -520,6 +534,18 @@ MK_BARR_REALLOC_TEST(1, 65536)
 MK_BARR_REALLOC_TEST(65536, 0)
 MK_BARR_REALLOC_TEST(65536, 1)
 MK_BARR_REALLOC_TEST(65536, 65536)
+
+int
+test_barr_realloc_overflow(void)
+{
+	int res;
+	j64_t j, k;
+	j = j64_barr_alloc(0);
+	k = j64_barr_realloc(j, J64_BARR_CAP_MAX + 1);
+	res = j64_is_undef(k);
+	j64_barr_free(j);
+	return res;
+}
 
 #define MK_BARR_SET_GET_TEST(CAP, SET)						\
 int										\
