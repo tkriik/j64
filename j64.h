@@ -383,7 +383,6 @@ j64_bstr_free(j64_t j)
  */
 
 struct j64__barr_hdr {
-	size_t	cnt;
 	size_t	cap;
 	j64_t	buf;
 };
@@ -398,15 +397,15 @@ j64_barr_alloc(size_t cap)
 	struct j64__barr_hdr *hdr;
 	size_t i;
 
+	/* Overflow check */
 	j64__assert(cap <= (SIZE_MAX / sizeof(j64_t)) - J64__BARR_HDR_SIZEOF);
 
-	/* TODO: check overflow */
 	hdr = malloc(J64__BARR_HDR_SIZEOF + cap * sizeof(j64_t));
 	if (hdr == NULL)
 		return j64_undef();
 
-	hdr->cnt = 0;
 	hdr->cap = cap;
+	/* TODO: remove initialization? */
 	for (i = 0; i < cap; i++)
 		(&hdr->buf)[i] = j64_undef();
 
@@ -416,19 +415,48 @@ j64_barr_alloc(size_t cap)
 	return j;
 }
 
+/*
+ * Reallocates an array with a new capacity.
+ * If the new capacity is smaller than the old one,
+ * truncates the array WITHOUT freeing the values
+ * at the end of the old array.
+ *
+ * Returns the new array on success, undefined otherwise.
+ */
+J64_API j64_t
+j64_barr_realloc(j64_t j, size_t new_cap)
+{
+	struct j64__barr_hdr *hdr, *new_hdr;
+	size_t cap;
+	size_t new_size;
+	size_t i;
+
+	j64__assert(j64_is_barr(j));
+	/* Overflow check */
+	j64__assert(cap <= (SIZE_MAX / sizeof(j64_t)) - J64__BARR_HDR_SIZEOF);
+
+	hdr = J64__BARR_HDR(j);
+	cap = hdr->cap;
+	new_size = J64__BARR_HDR_SIZEOF + new_cap * sizeof(j64_t);
+	new_hdr = realloc(hdr, new_size);
+	if (new_hdr == NULL)
+		return j64_undef();
+
+	/* Initialize(TODO: remove?) the grown area if new capacity is greater */
+	for (i = cap; i < new_cap; i++)
+		(&new_hdr->buf)[i] = j64_undef();
+
+	new_hdr->cap = new_cap;
+	j.p = (uintptr_t)new_hdr;
+	j.w |= J64_TYPE_BARR;
+
+	return j;
+}
+
 J64_API int
 j64_is_barr(j64_t j)
 {
 	return J64_TYPE_GET(j) == J64_TYPE_BARR;
-}
-
-J64_API size_t
-j64_barr_cnt(j64_t j)
-{
-	struct j64__barr_hdr *hdr;
-	j64__assert(j64_is_barr(j));
-	hdr = J64__BARR_HDR(j);
-	return hdr->cnt;
 }
 
 J64_API size_t

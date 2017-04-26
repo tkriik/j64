@@ -120,10 +120,15 @@ int test_barr_alloc_0(void);
 int test_barr_alloc_1(void);
 int test_barr_alloc_8(void);
 int test_barr_alloc_65536(void);
-int test_barr_empty_cnt_0(void);
-int test_barr_empty_cnt_1(void);
-int test_barr_empty_cnt_8(void);
-int test_barr_empty_cnt_65536(void);
+int test_barr_realloc_0_0(void);
+int test_barr_realloc_0_1(void);
+int test_barr_realloc_0_65536(void);
+int test_barr_realloc_1_0(void);
+int test_barr_realloc_1_1(void);
+int test_barr_realloc_1_65536(void);
+int test_barr_realloc_65536_0(void);
+int test_barr_realloc_65536_1(void);
+int test_barr_realloc_65536_65536(void);
 int test_barr_empty_cap_0(void);
 int test_barr_empty_cap_1(void);
 int test_barr_empty_cap_8(void);
@@ -205,10 +210,15 @@ static const struct test TESTS[] = {
 	TEST(test_barr_alloc_1,			"boxed array construction of size 1"),
 	TEST(test_barr_alloc_8,			"boxed array construction of size 8"),
 	TEST(test_barr_alloc_65536,		"boxed array construction of size 65536"),
-	TEST(test_barr_empty_cnt_0,		"empty boxed array count"),
-	TEST(test_barr_empty_cnt_1,		"boxed array count with capacity 1"),
-	TEST(test_barr_empty_cnt_8,		"boxed array count with capacity 8"),
-	TEST(test_barr_empty_cnt_65536,		"boxed array count with capacity 65536"),
+	TEST(test_barr_realloc_0_0,		"boxed array reallocation from 0 to 0"),
+	TEST(test_barr_realloc_0_1,		"boxed array reallocation from 0 to 1"),
+	TEST(test_barr_realloc_0_65536,		"boxed array reallocation from 0 to 65536"),
+	TEST(test_barr_realloc_1_0,		"boxed array reallocation from 1 to 0"),
+	TEST(test_barr_realloc_1_1,		"boxed array reallocation from 1 to 1"),
+	TEST(test_barr_realloc_1_65536,		"boxed array reallocation from 1 to 65536"),
+	TEST(test_barr_realloc_65536_0,		"boxed array reallocation from 65536 to 0"),
+	TEST(test_barr_realloc_65536_1,		"boxed array reallocation from 65536 to 1"),
+	TEST(test_barr_realloc_65536_65536,	"boxed array reallocation from 65536 to 65536"),
 	TEST(test_barr_empty_cap_0,		"empty boxed array capacity"),
 	TEST(test_barr_empty_cap_1,		"boxed array capacity with capacity 1"),
 	TEST(test_barr_empty_cap_8,		"boxed array capacity with capacity 8"),
@@ -479,21 +489,27 @@ MK_BARR_ALLOC_TEST(1)
 MK_BARR_ALLOC_TEST(8)
 MK_BARR_ALLOC_TEST(65536)
 
-#define MK_BARR_EMPTY_CNT_TEST(CAP)						\
+#define MK_BARR_REALLOC_TEST(CAP, NEW_CAP)					\
 int										\
-test_barr_empty_cnt_ ## CAP(void)						\
-{										\
-	int res;								\
-	j64_t j = j64_barr_alloc(CAP);						\
-	res = j64_barr_cnt(j) == 0;						\
-	j64_barr_free(j);							\
-	return res;								\
+test_barr_realloc_ ## CAP ## _ ## NEW_CAP(void)					\
+{                                                                               \
+	int res;                                                                \
+	j64_t j = j64_barr_alloc(CAP);                                          \
+	j = j64_barr_realloc(j, NEW_CAP);                                       \
+	res = j64_is_barr(j);                                                   \
+	j64_barr_free(j);                                                       \
+	return res;                                                             \
 }
 
-MK_BARR_EMPTY_CNT_TEST(0)
-MK_BARR_EMPTY_CNT_TEST(1)
-MK_BARR_EMPTY_CNT_TEST(8)
-MK_BARR_EMPTY_CNT_TEST(65536)
+MK_BARR_REALLOC_TEST(0, 0)
+MK_BARR_REALLOC_TEST(0, 1)
+MK_BARR_REALLOC_TEST(0, 65536)
+MK_BARR_REALLOC_TEST(1, 0)
+MK_BARR_REALLOC_TEST(1, 1)
+MK_BARR_REALLOC_TEST(1, 65536)
+MK_BARR_REALLOC_TEST(65536, 0)
+MK_BARR_REALLOC_TEST(65536, 1)
+MK_BARR_REALLOC_TEST(65536, 65536)
 
 #define MK_BARR_EMPTY_CAP_TEST(CAP)						\
 int										\
