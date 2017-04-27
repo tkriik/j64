@@ -55,6 +55,8 @@ run_tests(const struct test *tests, int ntests)
 }
 
 /* Test declarations */
+int test_sys_malloc_alignment(void);
+
 int test_undef(void);
 int test_null(void);
 int test_false(void);
@@ -158,6 +160,8 @@ int test_barr_set_free_get_65536(void);
 
 /* Test function and description list */
 static const struct test TESTS[] = {
+	TEST(test_sys_malloc_alignment,		"memory allocator pointer alignment"),
+
 	TEST(test_undef,			"undefined literal construction"),
 	TEST(test_null,				"null literal construction"),
 	TEST(test_false,			"false literal construction"),
@@ -272,6 +276,45 @@ main(void)
 		return EXIT_SUCCESS;
 	else
 		return EXIT_FAILURE;
+}
+
+/*
+ * System tests
+ */
+
+int
+test_sys_malloc_alignment(void)
+{
+#define NMALLOCS	65536
+#define MALLOC_SIZE	64
+
+	int res = 1;
+	union {
+		void *p;
+		uintptr_t u;
+	} us[NMALLOCS];
+	size_t i;
+	size_t nmallocs = 0;
+
+	for (i = 0; i < NMALLOCS; i++) {
+		us[i].p = malloc(MALLOC_SIZE);
+		if (us[i].p == NULL) {
+			fprintf(stderr, "Out of memory\n");
+			res = 0;
+			goto cleanup;
+		}
+		nmallocs++;
+		if (us[i].u != (us[i].u & (uintptr_t)J64__PTR_MASK)) {
+			res = 0;
+			goto cleanup;
+		}
+	}
+
+cleanup:
+	for (i = 0; i < nmallocs; i++)
+		free(us[i].p);
+
+	return res;
 }
 
 /*
