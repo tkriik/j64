@@ -519,7 +519,7 @@ test_barr_realloc_ ## CAP ## _ ## NEW_CAP(void)					\
 {                                                                               \
 	int res;                                                                \
 	j64_t j = j64_barr_alloc(CAP);                                          \
-	j = j64_barr_realloc(j, NEW_CAP);                                       \
+	j64_barr_realloc(&j, NEW_CAP);						\
 	res = j64_is_barr(j);                                                   \
 	j64_barr_free(j);                                                       \
 	return res;                                                             \
@@ -539,12 +539,11 @@ int
 test_barr_realloc_overflow(void)
 {
 	int res;
-	j64_t j, k;
+	j64_t j;
 	j = j64_barr_alloc(0);
-	k = j64_barr_realloc(j, J64_BARR_CAP_MAX + 1);
-	res = j64_is_undef(k);
+	res = j64_barr_realloc(&j, J64_BARR_CAP_MAX + 1);
 	j64_barr_free(j);
-	return res;
+	return !res;
 }
 
 #define MK_BARR_SET_GET_TEST(CAP, SET)						\

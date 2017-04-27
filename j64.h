@@ -425,38 +425,39 @@ j64_barr_alloc(size_t cap)
  * truncates the array WITHOUT freeing the values
  * at the end of the old array.
  *
- * Returns the new array on success, undefined otherwise.
+ * Returns 1 on success, 0 otherwise.
  */
-J64_API j64_t
-j64_barr_realloc(j64_t j, size_t new_cap)
+J64_API int
+j64_barr_realloc(j64_t *jp, size_t new_cap)
 {
 	struct j64__barr_hdr *hdr, *new_hdr;
 	size_t cap;
 	size_t new_size;
 	size_t i;
 
-	j64__assert(j64_is_barr(j));
+	j64__assert(jp != NULL);
+	j64__assert(j64_is_barr(*jp));
 
 	/* Overflow check */
 	if (J64__BARR_HDR_CAP_MAX < new_cap)
-		return j64_undef();
+		return 0;
 
-	hdr = J64__BARR_HDR(j);
+	hdr = J64__BARR_HDR(*jp);
 	cap = hdr->cap;
 	new_size = J64__BARR_HDR_SIZEOF + new_cap * sizeof(j64_t);
 	new_hdr = realloc(hdr, new_size);
 	if (new_hdr == NULL)
-		return j64_undef();
+		return 0;
 
 	/* Initialize(TODO: remove?) the grown area if new capacity is greater */
 	for (i = cap; i < new_cap; i++)
 		(&new_hdr->buf)[i] = j64_undef();
 
 	new_hdr->cap = new_cap;
-	j.p = (uintptr_t)new_hdr;
-	j.w |= J64_TYPE_BARR;
+	jp->p = (uintptr_t)new_hdr;
+	jp->w |= J64_TYPE_BARR;
 
-	return j;
+	return 1;
 }
 
 J64_API int
