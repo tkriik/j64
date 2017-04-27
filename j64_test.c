@@ -63,6 +63,7 @@ int test_bool_false(void);
 int test_bool_true(void);
 int test_estr(void);
 int test_earr(void);
+int test_eobj(void);
 
 int test_null_encode_4(void);
 int test_null_encode_2(void);
@@ -74,6 +75,8 @@ int test_estr_encode_2(void);
 int test_estr_encode_1(void);
 int test_earr_encode_2(void);
 int test_earr_encode_1(void);
+int test_eobj_encode_2(void);
+int test_eobj_encode_1(void);
 
 int test_int_zero(void);
 int test_int_one(void);
@@ -163,6 +166,7 @@ static const struct test TESTS[] = {
 	TEST(test_bool_true,			"boolean literal construction with true"),
 	TEST(test_estr,				"empty string literal construction"),
 	TEST(test_earr,				"empty array literal construction"),
+	TEST(test_eobj,				"empty object literal construction"),
 
 	TEST(test_null_encode_4,		"null literal encoding with 4 bytes"),
 	TEST(test_null_encode_2,		"null literal encoding with 2 bytes"),
@@ -174,6 +178,8 @@ static const struct test TESTS[] = {
 	TEST(test_estr_encode_1,		"empty string encoding with 1 byte"),
 	TEST(test_earr_encode_2,		"empty array encoding with 2 bytes"),
 	TEST(test_earr_encode_1,		"empty array encoding with 1 byte"),
+	TEST(test_eobj_encode_2,		"empty object encoding with 2 bytes"),
+	TEST(test_eobj_encode_1,		"empty object encoding with 1 byte"),
 
 	TEST(test_int_zero,			"zero integer construction"),
 	TEST(test_int_one,			"positive integer constructon"),
@@ -286,6 +292,7 @@ MK_LIT_TEST(false)
 MK_LIT_TEST(true)
 MK_LIT_TEST(estr)
 MK_LIT_TEST(earr)
+MK_LIT_TEST(eobj)
 
 #define MK_BOOL_TEST(TYPE, N)							\
 int										\
@@ -318,6 +325,8 @@ MK_LIT_ENCODE_TEST(estr, 2, "\"\"")
 MK_LIT_ENCODE_TEST(estr, 1, "\"")
 MK_LIT_ENCODE_TEST(earr, 2, "[]")
 MK_LIT_ENCODE_TEST(earr, 1, "[")
+MK_LIT_ENCODE_TEST(eobj, 2, "{}")
+MK_LIT_ENCODE_TEST(eobj, 1, "{")
 
 #define MK_INT_TEST(NAME, X)							\
 int										\

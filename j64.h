@@ -229,6 +229,28 @@ j64_earr_encode(char *buf, size_t len)
 	return len;
 }
 
+J64_API j64_t
+j64_eobj(void)
+{
+	j64_t j = J64__INIT;
+	j.w = J64_TYPE_LIT_EOBJ;
+	return j;
+}
+
+J64_API int
+j64_is_eobj(j64_t j)
+{
+	return j.w == J64_TYPE_LIT_EOBJ;
+}
+
+J64_API size_t
+j64_eobj_encode(char *buf, size_t len)
+{
+	len = J64__MIN(len, 2);
+	memcpy(buf, "{}", len);
+	return len;
+}
+
 /*
  * Integer contants and functions
  */
