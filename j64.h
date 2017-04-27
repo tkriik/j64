@@ -125,12 +125,34 @@ j64_is_null(j64_t j)
 	return j.w == J64_TYPE_LIT_NULL;
 }
 
+J64_API size_t
+j64_null_encode(char *buf, size_t len)
+{
+	len = J64__MIN(len, 4);
+	memcpy(buf, "null", len);
+	return len;
+}
+
 J64_API j64_t
 j64_false(void)
 {
 	j64_t j = J64__INIT;
 	j.w = J64_TYPE_LIT_FALSE;
 	return j;
+}
+
+J64_API int
+j64_is_false(j64_t j)
+{
+	return j.w == J64_TYPE_LIT_FALSE;
+}
+
+J64_API size_t
+j64_false_encode(char *buf, size_t len)
+{
+	len = J64__MIN(len, 5);
+	memcpy(buf, "false", len);
+	return len;
 }
 
 J64_API j64_t
@@ -141,24 +163,26 @@ j64_true(void)
 	return j;
 }
 
-J64_API j64_t
-j64_bool(int b)
-{
-	j64_t j = J64__INIT;
-	j.w = b ? J64_TYPE_LIT_TRUE : J64_TYPE_LIT_FALSE;
-	return j;
-}
-
 J64_API int
 j64_is_true(j64_t j)
 {
 	return j.w == J64_TYPE_LIT_TRUE;
 }
 
-J64_API int
-j64_is_false(j64_t j)
+J64_API size_t
+j64_true_encode(char *buf, size_t len)
 {
-	return j.w == J64_TYPE_LIT_FALSE;
+	len = J64__MIN(len, 4);
+	memcpy(buf, "true", len);
+	return len;
+}
+
+J64_API j64_t
+j64_bool(int b)
+{
+	j64_t j = J64__INIT;
+	j.w = b ? J64_TYPE_LIT_TRUE : J64_TYPE_LIT_FALSE;
+	return j;
 }
 
 J64_API j64_t
@@ -175,6 +199,14 @@ j64_is_estr(j64_t j)
 	return j.w == J64_TYPE_LIT_ESTR;
 }
 
+J64_API size_t
+j64_estr_encode(char *buf, size_t len)
+{
+	len = J64__MIN(len, 2);
+	memcpy(buf, "\"\"", len);
+	return len;
+}
+
 J64_API j64_t
 j64_earr(void)
 {
@@ -187,6 +219,14 @@ J64_API int
 j64_is_earr(j64_t j)
 {
 	return j.w == J64_TYPE_LIT_EARR;
+}
+
+J64_API size_t
+j64_earr_encode(char *buf, size_t len)
+{
+	len = J64__MIN(len, 2);
+	memcpy(buf, "[]", len);
+	return len;
 }
 
 /*

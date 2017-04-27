@@ -64,6 +64,17 @@ int test_bool_true(void);
 int test_estr(void);
 int test_earr(void);
 
+int test_null_encode_4(void);
+int test_null_encode_2(void);
+int test_false_encode_5(void);
+int test_false_encode_2(void);
+int test_true_encode_4(void);
+int test_true_encode_2(void);
+int test_estr_encode_2(void);
+int test_estr_encode_1(void);
+int test_earr_encode_2(void);
+int test_earr_encode_1(void);
+
 int test_int_zero(void);
 int test_int_one(void);
 int test_int_minus_one(void);
@@ -152,6 +163,17 @@ static const struct test TESTS[] = {
 	TEST(test_bool_true,			"boolean literal construction with true"),
 	TEST(test_estr,				"empty string literal construction"),
 	TEST(test_earr,				"empty array literal construction"),
+
+	TEST(test_null_encode_4,		"null literal encoding with 4 bytes"),
+	TEST(test_null_encode_2,		"null literal encoding with 2 bytes"),
+	TEST(test_false_encode_5,		"false literal encoding with 5 bytes"),
+	TEST(test_false_encode_2,		"false literal encoding with 2 bytes"),
+	TEST(test_true_encode_4,		"true literal encoding with 4 bytes"),
+	TEST(test_true_encode_2,		"true literal encoding with 2 bytes"),
+	TEST(test_estr_encode_2,		"empty string encoding with 2 bytes"),
+	TEST(test_estr_encode_1,		"empty string encoding with 1 byte"),
+	TEST(test_earr_encode_2,		"empty array encoding with 2 bytes"),
+	TEST(test_earr_encode_1,		"empty array encoding with 1 byte"),
 
 	TEST(test_int_zero,			"zero integer construction"),
 	TEST(test_int_one,			"positive integer constructon"),
@@ -275,6 +297,27 @@ test_bool_ ##TYPE(void)								\
 
 MK_BOOL_TEST(false, 0)
 MK_BOOL_TEST(true, 1)
+
+#define MK_LIT_ENCODE_TEST(TYPE, LEN, S)					\
+int										\
+test_ ## TYPE ## _encode_ ## LEN(void)						\
+{                                                                               \
+	char buf[LEN + 1];                                                      \
+	memset(buf, '\0', sizeof(buf));                                         \
+	j64_ ## TYPE ## _encode(buf, LEN);                                      \
+	return strcmp(buf, S) == 0;                                             \
+}
+
+MK_LIT_ENCODE_TEST(null, 4, "null")
+MK_LIT_ENCODE_TEST(null, 2, "nu")
+MK_LIT_ENCODE_TEST(false, 5, "false")
+MK_LIT_ENCODE_TEST(false, 2, "fa")
+MK_LIT_ENCODE_TEST(true, 4, "true")
+MK_LIT_ENCODE_TEST(true, 2, "tr")
+MK_LIT_ENCODE_TEST(estr, 2, "\"\"")
+MK_LIT_ENCODE_TEST(estr, 1, "\"")
+MK_LIT_ENCODE_TEST(earr, 2, "[]")
+MK_LIT_ENCODE_TEST(earr, 1, "[")
 
 #define MK_INT_TEST(NAME, X)							\
 int										\
