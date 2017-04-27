@@ -37,6 +37,8 @@
 #define J64_FREE free
 #endif
 
+#define J64__MIN(a, b) ((a) < (b) ? (a) : (b))
+
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -272,7 +274,7 @@ j64_istr(const void *buf, size_t len)
 {
 	j64_t j = J64__INIT;
 
-	len = len < J64_ISTR_LEN_MAX ? len : J64_ISTR_LEN_MAX;
+	len = J64__MIN(len, J64_ISTR_LEN_MAX);
 	memcpy(&j.b[1], buf, len);
 	j.w |= (len << J64__ISTR_LEN_OFFS) & J64__ISTR_LEN_MASK;
 	j.w |= J64_TYPE_ISTR;
@@ -299,7 +301,7 @@ j64_istr_get(j64_t j, void *buf, size_t len)
 
 	j64__assert(j64_is_istr(j));
 	n = j64_istr_len(j);
-	n = n < len ? n : len;
+	n = J64__MIN(n, len);
 	memcpy(buf, &j.b[1], n);
 
 	return n;
@@ -365,7 +367,7 @@ j64_bstr_get(j64_t j, void *buf, size_t len)
 
 	hdr = J64__BSTR_HDR(j);
 	n = j64_bstr_len(j);
-	n = n < len ? n : len;
+	n = J64__MIN(n, len);
 	memcpy(buf, &hdr->buf, n);
 
 	return n;
