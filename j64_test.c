@@ -86,13 +86,11 @@ int test_int_one(void);
 int test_int_minus_one(void);
 int test_int_max(void);
 int test_int_min(void);
-int test_int_overflow(void);
 int test_int_get_zero(void);
 int test_int_get_one(void);
 int test_int_get_minus_one(void);
 int test_int_get_max(void);
 int test_int_get_min(void);
-int test_int_get_overflow(void);
 
 int test_float_zero(void);
 int test_float_one(void);
@@ -192,13 +190,11 @@ static const struct test TESTS[] = {
 	TEST(test_int_minus_one,		"negative integer construction"),
 	TEST(test_int_max,			"maximum integer construction"),
 	TEST(test_int_min,			"minimum integer construction"),
-	TEST(test_int_overflow,			"overflowed integer construction"),
 	TEST(test_int_get_zero,			"zero integer storage"),
 	TEST(test_int_get_one,			"positive integer storage"),
 	TEST(test_int_get_minus_one,		"negative integer storage"),
 	TEST(test_int_get_max,			"maximum integer storage"),
 	TEST(test_int_get_min,			"minimum integer storage"),
-	TEST(test_int_get_overflow,		"overflowed integer storage"),
 
 	TEST(test_float_zero,			"zero floating-point construction"),
 	TEST(test_float_one,			"positive floating-point construction"),
@@ -392,7 +388,6 @@ MK_INT_TEST(one, 1)
 MK_INT_TEST(minus_one, -1)
 MK_INT_TEST(max, J64_INT_MAX)
 MK_INT_TEST(min, J64_INT_MIN)
-MK_INT_TEST(overflow, J64_INT_MAX + 1)
 
 #define MK_INT_GET_TEST(NAME, X, Y)						\
 int										\
@@ -407,7 +402,6 @@ MK_INT_GET_TEST(one, 1, 1)
 MK_INT_GET_TEST(minus_one, -1, -1)
 MK_INT_GET_TEST(max, J64_INT_MAX, J64_INT_MAX)
 MK_INT_GET_TEST(min, J64_INT_MIN, J64_INT_MIN)
-MK_INT_GET_TEST(overflow, J64_INT_MAX + 1, J64_INT_MIN)
 
 #define MK_FLOAT_TEST(NAME, X)							\
 int										\

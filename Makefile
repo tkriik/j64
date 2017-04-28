@@ -1,6 +1,6 @@
 CC=		clang -Weverything
 
-DFLAGS=		-DJ64_STATIC
+DFLAGS=		-DJ64_STATIC -DJ64_DEBUG
 
 CFLAGS=		-ansi -pedantic -g -O0 \
 		-Wno-missing-prototypes \

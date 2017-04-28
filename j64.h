@@ -483,6 +483,12 @@ j64_barr_alloc(size_t cap)
 	return j;
 }
 
+J64_API int
+j64_is_barr(j64_t j)
+{
+	return J64_TYPE_GET(j) == J64_TYPE_BARR;
+}
+
 /*
  * Reallocates an array with a new capacity.
  * If the new capacity is smaller than the old one,
@@ -524,12 +530,6 @@ j64_barr_realloc(j64_t *jp, size_t new_cap)
 	return 1;
 }
 
-J64_API int
-j64_is_barr(j64_t j)
-{
-	return J64_TYPE_GET(j) == J64_TYPE_BARR;
-}
-
 J64_API size_t
 j64_barr_cap(j64_t j)
 {
@@ -546,7 +546,7 @@ j64_barr_get(j64_t j, size_t i)
 
 	j64__assert(j64_is_barr(j));
 	hdr = J64__BARR_HDR(j);
-	j64__assert(i < hdr->cap;);
+	j64__assert(i < hdr->cap);
 
 	return (&hdr->buf)[i];
 }
