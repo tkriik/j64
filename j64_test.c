@@ -55,6 +55,7 @@ run_tests(const struct test *tests, int ntests)
 }
 
 /* Test declarations */
+int test_sys_j64_size(void);
 int test_sys_malloc_alignment(void);
 
 int test_undef(void);
@@ -160,6 +161,7 @@ int test_barr_set_free_get_65536(void);
 
 /* Test function and description list */
 static const struct test TESTS[] = {
+	TEST(test_sys_j64_size,			"j64 union size"),
 	TEST(test_sys_malloc_alignment,		"memory allocator pointer alignment"),
 
 	TEST(test_undef,			"undefined literal construction"),
@@ -281,6 +283,12 @@ main(void)
 /*
  * System tests
  */
+
+int
+test_sys_j64_size(void)
+{
+	return sizeof(j64_t) == 8;
+}
 
 int
 test_sys_malloc_alignment(void)
